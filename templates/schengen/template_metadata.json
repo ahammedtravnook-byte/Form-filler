@@ -1,0 +1,7 @@
+{
+  "template_id": "schengen_visa_application",
+  "template_version": "2026-11-14",
+  "expected_pages": 4,
+  "sha256": "",
+  "description": "Static Schengen visa application form. No AcroForm fields. Coordinate-based stamping required."
+}
