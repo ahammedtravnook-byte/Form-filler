@@ -21,7 +21,7 @@ from .exceptions import (
     TemplateMismatchError,
     TemplateNotFoundError,
 )
-from .models import CoordinateMap, TemplateMetadata
+from .models import FieldsConfig, TemplateMetadata
 from .utils import load_json, sha256_file
 
 
@@ -74,11 +74,11 @@ def validate_template_hash(
 
 
 def validate_pages_in_range(
-    coord_map: CoordinateMap,
+    fields_config: FieldsConfig,
     pdf_page_count: int,
 ) -> None:
-    """Make sure every coordinate field references a page that exists."""
-    for name, field in coord_map.fields.items():
+    """Make sure every field references a page that exists in the template."""
+    for name, field in fields_config.fields.items():
         if field.page < 1 or field.page > pdf_page_count:
             raise PageOutOfRangeError(name, field.page, pdf_page_count)
 

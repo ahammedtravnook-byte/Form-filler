@@ -1,7 +1,7 @@
 """Core PDF filling engine.
 
 The :class:`PdfFiller` class loads a static template PDF and stamps text and
-checkbox marks at coordinates declared in a :class:`CoordinateMap`. It treats
+checkbox marks at coordinates declared in a :class:`FieldsConfig`. It treats
 the PDF as a fixed visual template — it does *not* use AcroForm/XFA APIs.
 
 Design:
@@ -32,15 +32,16 @@ from .exceptions import (
 from .logging_config import get_logger
 from .models import (
     CheckboxFieldConfig,
-    CoordinateMap,
+    CheckboxGroupFieldConfig,
     DateFieldConfig,
+    FieldsConfig,
     ImageFieldConfig,
     MultilineTextFieldConfig,
     SignatureTextFieldConfig,
     TemplateMetadata,
     TextFieldConfig,
 )
-from .utils import is_empty_value, resolve_path
+from .utils import is_empty_value
 from .validators import (
     parse_date_value,
     validate_metadata_page_count,
@@ -80,11 +81,11 @@ class PdfFiller:
     def __init__(
         self,
         template_path: Path,
-        coordinate_map: CoordinateMap,
+        fields_config: FieldsConfig,
         metadata: TemplateMetadata | None = None,
     ) -> None:
         self.template_path = validate_template_path(Path(template_path))
-        self.coordinate_map = coordinate_map
+        self.fields_config = fields_config
         self.metadata = metadata
         self._template_sha: str | None = None
 
@@ -113,14 +114,12 @@ class PdfFiller:
 
         result = FillResult(output_path=output_path, template_sha256=self._template_sha)
 
-        # Open the template, copy it into a fresh document so we never touch the original.
         with fitz.open(self.template_path) as src_doc:
             if src_doc.is_encrypted:
                 if not SETTINGS.allow_encrypted_pdfs:
                     raise TemplateNotFoundError(
                         "Template PDF is encrypted; encrypted PDFs are not supported."
                     )
-                # Best-effort: try empty password if user explicitly opted in.
                 if not src_doc.authenticate(""):
                     raise TemplateNotFoundError("Encrypted template requires a password.")
 
@@ -128,16 +127,15 @@ class PdfFiller:
             result.page_count = page_count
 
             validate_metadata_page_count(self.metadata, page_count)
-            validate_pages_in_range(self.coordinate_map, page_count)
+            validate_pages_in_range(self.fields_config, page_count)
 
             out_doc = fitz.open()  # empty document
             try:
                 out_doc.insert_pdf(src_doc)
 
-                for name, fcfg in self.coordinate_map.fields.items():
+                for name, fcfg in self.fields_config.fields.items():
                     self._render_field(out_doc, name, fcfg, data, result, debug_boxes)
 
-                # Save with garbage collection + deflation for a smaller, clean PDF.
                 out_doc.save(
                     str(output_path),
                     garbage=3,
@@ -166,21 +164,19 @@ class PdfFiller:
         result: FillResult,
         debug_boxes: bool,
     ) -> None:
-        """Resolve the source value for ``cfg`` and dispatch by field type."""
-        value = resolve_path(data, cfg.source)
+        """Resolve the value for ``cfg.data_key`` and dispatch by field type."""
+        value = data.get(cfg.data_key)
         page = doc[cfg.page - 1]  # 1-based → 0-based
 
-        # Handle missing / empty values uniformly.
         if is_empty_value(value):
-            if isinstance(cfg, CheckboxFieldConfig):
-                # Checkbox with empty source: simply leave it unchecked.
+            if isinstance(cfg, (CheckboxFieldConfig, CheckboxGroupFieldConfig)):
                 result.fields_skipped.append(name)
-                _LOGGER.debug("Field '%s' (checkbox): empty source, leaving unchecked.", name)
+                _LOGGER.debug("Field '%s' (checkbox): empty value, leaving unchecked.", name)
                 return
             if cfg.required:
-                raise MissingRequiredFieldError(name, cfg.source)
+                raise MissingRequiredFieldError(name, cfg.data_key)
             result.fields_skipped.append(name)
-            warning = f"Optional field '{name}' has no value (source '{cfg.source}'); skipped."
+            warning = f"Optional field '{name}' has no value (data_key '{cfg.data_key}'); skipped."
             result.warnings.append(warning)
             _LOGGER.info(warning)
             return
@@ -195,15 +191,15 @@ class PdfFiller:
                 self._render_multiline(page, name, cfg, str(value))
             elif isinstance(cfg, CheckboxFieldConfig):
                 self._render_checkbox(page, name, cfg, value)
+            elif isinstance(cfg, CheckboxGroupFieldConfig):
+                self._render_checkbox_group(page, name, cfg, value)
             elif isinstance(cfg, DateFieldConfig):
                 self._render_date(page, name, cfg, value)
             elif isinstance(cfg, ImageFieldConfig):
-                # Documented as a placeholder; we explicitly refuse rather than silently skip.
                 raise UnsupportedFieldTypeError(
                     f"Field '{name}': image field type is not yet implemented."
                 )
             elif isinstance(cfg, SignatureTextFieldConfig):
-                # Reuse the text rendering with shrink-by-default.
                 self._render_text_like(page, name, cfg, str(value))
             else:
                 raise UnsupportedFieldTypeError(
@@ -229,12 +225,9 @@ class PdfFiller:
         text = self._truncate_chars(value, cfg.max_chars)
         font_size = cfg.font_size
 
-        # max_chars truncate mode: already applied above. If overflow=truncate
-        # and there's no max_chars, fall back to width-based truncation below.
-        if cfg.max_width is None:
-            point = fitz.Point(cfg.x, cfg.y)
+        if cfg.width is None:
             page.insert_text(
-                point,
+                fitz.Point(cfg.x, cfg.y),
                 text,
                 fontname=cfg.font,
                 fontsize=font_size,
@@ -248,13 +241,19 @@ class PdfFiller:
             font_name=cfg.font,
             font_size=font_size,
             min_font_size=cfg.min_font_size,
-            max_width=cfg.max_width,
+            max_width=cfg.width,
             overflow=cfg.overflow,
         )
         if cfg.overflow == "truncate" and cfg.max_chars is None:
-            text = self._truncate_to_width(text, cfg.font, font_size, cfg.max_width)
+            text = self._truncate_to_width(text, cfg.font, font_size, cfg.width)
 
-        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.max_width, cfg.y + font_size * 4.0)
+        # PyMuPDF's insert_textbox needs noticeably more vertical room than the
+        # font size; tight heights (e.g. height=12 with font_size=9) silently
+        # drop the glyph. Always give it generous headroom — the text is
+        # baselined at the top of the rect, so an oversized rect doesn't shift
+        # the visual position.
+        rect_height = max(font_size * 4.0, (cfg.height or 0))
+        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.width, cfg.y + rect_height)
         rc = page.insert_textbox(
             rect,
             text,
@@ -264,7 +263,7 @@ class PdfFiller:
             color=cfg.color,
         )
         if rc < 0 and cfg.overflow == "error":
-            raise TextOverflowError(name, len(text), cfg.max_width)
+            raise TextOverflowError(name, len(text), cfg.width)
 
     def _render_text_like(
         self,
@@ -273,9 +272,8 @@ class PdfFiller:
         cfg: SignatureTextFieldConfig,
         value: str,
     ) -> None:
-        """Reuse text rendering with the SignatureTextFieldConfig settings."""
         font_size = cfg.font_size
-        if cfg.max_width is None:
+        if cfg.width is None:
             page.insert_text(
                 fitz.Point(cfg.x, cfg.y),
                 value,
@@ -291,13 +289,13 @@ class PdfFiller:
             font_name=cfg.font,
             font_size=font_size,
             min_font_size=cfg.min_font_size,
-            max_width=cfg.max_width,
+            max_width=cfg.width,
             overflow=cfg.overflow,
         )
         if cfg.overflow == "truncate":
-            value = self._truncate_to_width(value, cfg.font, font_size, cfg.max_width)
+            value = self._truncate_to_width(value, cfg.font, font_size, cfg.width)
 
-        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.max_width, cfg.y + font_size * 4.0)
+        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.width, cfg.y + font_size * 4.0)
         rc = page.insert_textbox(
             rect,
             value,
@@ -307,7 +305,7 @@ class PdfFiller:
             color=cfg.color,
         )
         if rc < 0 and cfg.overflow == "error":
-            raise TextOverflowError(name, len(value), cfg.max_width)
+            raise TextOverflowError(name, len(value), cfg.width)
 
     def _render_multiline(
         self,
@@ -316,8 +314,8 @@ class PdfFiller:
         cfg: MultilineTextFieldConfig,
         value: str,
     ) -> None:
-        height = cfg.line_height * cfg.max_lines + 2  # tiny pad
-        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.max_width, cfg.y + height)
+        height = cfg.height if cfg.height is not None else cfg.line_height * cfg.max_lines + 2
+        rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.width, cfg.y + height)
         rc = page.insert_textbox(
             rect,
             value,
@@ -328,9 +326,8 @@ class PdfFiller:
         )
         if rc < 0:
             if cfg.overflow == "error":
-                raise TextOverflowError(name, len(value), cfg.max_width)
+                raise TextOverflowError(name, len(value), cfg.width)
             if cfg.overflow == "shrink":
-                # Try smaller sizes until it fits or we hit a floor at 6pt.
                 fitted = False
                 for fs in _shrink_steps(cfg.font_size, floor=6.0):
                     rc = page.insert_textbox(
@@ -345,9 +342,8 @@ class PdfFiller:
                         fitted = True
                         break
                 if not fitted:
-                    raise TextOverflowError(name, len(value), cfg.max_width)
+                    raise TextOverflowError(name, len(value), cfg.width)
             elif cfg.overflow == "truncate":
-                # Drop characters from the end until it fits.
                 truncated = value
                 while truncated and (
                     rc := page.insert_textbox(
@@ -361,7 +357,7 @@ class PdfFiller:
                 ) < 0:
                     truncated = truncated[:-1]
                 if not truncated:
-                    raise TextOverflowError(name, len(value), cfg.max_width)
+                    raise TextOverflowError(name, len(value), cfg.width)
 
     def _render_date(
         self,
@@ -370,18 +366,28 @@ class PdfFiller:
         cfg: DateFieldConfig,
         value: Any,
     ) -> None:
-        date_obj = parse_date_value(value)
-        try:
-            text = date_obj.strftime(cfg.format)
-        except ValueError as exc:
-            raise DataValidationError(
-                f"Field '{name}': invalid date format string '{cfg.format}': {exc}"
-            ) from exc
+        # Accept already-formatted date strings. Only attempt structured parsing
+        # if it's not already in the desired output format (e.g. "01-01-2020").
+        text: str
+        if isinstance(value, str) and value.strip():
+            try:
+                date_obj = parse_date_value(value)
+                text = date_obj.strftime(cfg.format)
+            except DataValidationError:
+                # Pass through verbatim — the user may have pre-formatted it.
+                text = value.strip()
+        else:
+            date_obj = parse_date_value(value)
+            try:
+                text = date_obj.strftime(cfg.format)
+            except ValueError as exc:
+                raise DataValidationError(
+                    f"Field '{name}': invalid date format string '{cfg.format}': {exc}"
+                ) from exc
 
-        # Reuse text-field machinery via a synthesised text config.
         synthesised = TextFieldConfig(
             type="text",
-            source=cfg.source,
+            data_key=cfg.data_key,
             page=cfg.page,
             x=cfg.x,
             y=cfg.y,
@@ -389,7 +395,7 @@ class PdfFiller:
             font=cfg.font,
             font_size=cfg.font_size,
             align=cfg.align,
-            max_width=cfg.max_width,
+            width=cfg.width,
             overflow=cfg.overflow,
             color=cfg.color,
         )
@@ -405,41 +411,93 @@ class PdfFiller:
         if not _checkbox_should_check(cfg.checked_when, value):
             _LOGGER.debug("Checkbox '%s' resolved to unchecked.", name)
             return
+        self._draw_check_mark(
+            page,
+            x=cfg.x,
+            y=cfg.y,
+            size=cfg.box_size,
+            style=cfg.check_style,
+            color=cfg.color,
+            line_width=cfg.line_width,
+        )
 
-        x0, y0 = cfg.x, cfg.y
-        size = cfg.box_size
+    def _render_checkbox_group(
+        self,
+        page: fitz.Page,
+        name: str,
+        cfg: CheckboxGroupFieldConfig,
+        value: Any,
+    ) -> None:
+        """Tick the option(s) whose key matches ``value`` (case-insensitive)."""
+        # Normalise the value(s) to a list of lowercased strings.
+        if isinstance(value, (list, tuple, set)):
+            wanted = {str(v).strip().lower() for v in value if not is_empty_value(v)}
+        else:
+            wanted = {str(value).strip().lower()}
+
+        # Build a case-insensitive lookup of options.
+        lookup = {key.strip().lower(): (key, opt) for key, opt in cfg.options.items()}
+
+        matched_any = False
+        for w in wanted:
+            if w not in lookup:
+                _LOGGER.warning(
+                    "Checkbox group '%s': value '%s' does not match any option (%s).",
+                    name, w, ", ".join(cfg.options.keys()),
+                )
+                continue
+            _key, opt = lookup[w]
+            self._draw_check_mark(
+                page,
+                x=opt.x,
+                y=opt.y,
+                size=cfg.box_size,
+                style=cfg.check_style,
+                color=cfg.color,
+                line_width=cfg.line_width,
+            )
+            matched_any = True
+
+        if not matched_any:
+            _LOGGER.debug("Checkbox group '%s': no option ticked.", name)
+
+    # ----- helpers -------------------------------------------------------- #
+
+    @staticmethod
+    def _draw_check_mark(
+        page: fitz.Page,
+        *,
+        x: float,
+        y: float,
+        size: float,
+        style: str,
+        color: tuple[float, float, float],
+        line_width: float,
+    ) -> None:
+        x0, y0 = x, y
         x1, y1 = x0 + size, y0 + size
         rect = fitz.Rect(x0, y0, x1, y1)
 
-        if cfg.check_style == "filled_square":
-            page.draw_rect(
-                rect,
-                color=cfg.color,
-                fill=cfg.color,
-                width=cfg.line_width,
-                overlay=True,
-            )
-        elif cfg.check_style == "x":
+        if style == "filled_square":
+            page.draw_rect(rect, color=color, fill=color, width=line_width, overlay=True)
+        elif style == "x":
             page.draw_line(fitz.Point(x0, y0), fitz.Point(x1, y1),
-                           color=cfg.color, width=cfg.line_width, overlay=True)
+                           color=color, width=line_width, overlay=True)
             page.draw_line(fitz.Point(x1, y0), fitz.Point(x0, y1),
-                           color=cfg.color, width=cfg.line_width, overlay=True)
-        elif cfg.check_style == "check":
-            # Drawn as two segments: short left stroke, longer right stroke.
+                           color=color, width=line_width, overlay=True)
+        elif style == "check":
             mid_x = x0 + size * 0.4
             mid_y = y0 + size * 0.75
             page.draw_line(
                 fitz.Point(x0 + size * 0.1, y0 + size * 0.5),
                 fitz.Point(mid_x, mid_y),
-                color=cfg.color, width=cfg.line_width, overlay=True,
+                color=color, width=line_width, overlay=True,
             )
             page.draw_line(
                 fitz.Point(mid_x, mid_y),
                 fitz.Point(x0 + size * 0.95, y0 + size * 0.15),
-                color=cfg.color, width=cfg.line_width, overlay=True,
+                color=color, width=line_width, overlay=True,
             )
-
-    # ----- helpers -------------------------------------------------------- #
 
     @staticmethod
     def _truncate_chars(text: str, max_chars: int | None) -> str:
@@ -458,7 +516,6 @@ class PdfFiller:
         max_width: float,
         overflow: str,
     ) -> float:
-        """Return a font size that fits, applying the configured overflow strategy."""
         width = fitz.get_text_length(text, fontname=font_name, fontsize=font_size)
         if width <= max_width:
             return font_size
@@ -468,15 +525,13 @@ class PdfFiller:
                     return fs
             raise TextOverflowError(name, len(text), max_width)
         if overflow == "truncate":
-            return font_size  # caller will truncate the text
-        # "error" or anything else
+            return font_size
         raise TextOverflowError(name, len(text), max_width)
 
     @staticmethod
     def _truncate_to_width(
         text: str, font_name: str, font_size: float, max_width: float
     ) -> str:
-        """Drop trailing characters until the rendered width fits."""
         result = text
         while result and fitz.get_text_length(
             result, fontname=font_name, fontsize=font_size
@@ -490,16 +545,21 @@ class PdfFiller:
         debug_color = (1.0, 0.4, 0.4)  # light red
         if isinstance(cfg, CheckboxFieldConfig):
             rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.box_size, cfg.y + cfg.box_size)
+            page.draw_rect(rect, color=debug_color, width=0.4, overlay=True)
+        elif isinstance(cfg, CheckboxGroupFieldConfig):
+            for opt in cfg.options.values():
+                rect = fitz.Rect(opt.x, opt.y, opt.x + cfg.box_size, opt.y + cfg.box_size)
+                page.draw_rect(rect, color=debug_color, width=0.4, overlay=True)
         elif isinstance(cfg, MultilineTextFieldConfig):
-            rect = fitz.Rect(
-                cfg.x, cfg.y, cfg.x + cfg.max_width,
-                cfg.y + cfg.line_height * cfg.max_lines,
-            )
+            height = cfg.height if cfg.height is not None else cfg.line_height * cfg.max_lines
+            rect = fitz.Rect(cfg.x, cfg.y, cfg.x + cfg.width, cfg.y + height)
+            page.draw_rect(rect, color=debug_color, width=0.4, overlay=True)
         else:
-            width = getattr(cfg, "max_width", None) or 80.0
+            width = getattr(cfg, "width", None) or 80.0
             font_size = getattr(cfg, "font_size", 10.0)
-            rect = fitz.Rect(cfg.x, cfg.y, cfg.x + width, cfg.y + font_size * 1.6)
-        page.draw_rect(rect, color=debug_color, width=0.4, overlay=True)
+            height = getattr(cfg, "height", None) or font_size * 1.6
+            rect = fitz.Rect(cfg.x, cfg.y, cfg.x + width, cfg.y + height)
+            page.draw_rect(rect, color=debug_color, width=0.4, overlay=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -508,7 +568,6 @@ class PdfFiller:
 
 
 def _align_to_fitz(align: str) -> int:
-    """Map our alignment strings to PyMuPDF align constants."""
     return {
         "left": fitz.TEXT_ALIGN_LEFT,
         "center": fitz.TEXT_ALIGN_CENTER,
@@ -517,7 +576,6 @@ def _align_to_fitz(align: str) -> int:
 
 
 def _shrink_steps(start: float, floor: float, step: float = 0.5) -> list[float]:
-    """Generate descending font sizes from ``start`` down to ``floor``."""
     sizes: list[float] = []
     current = start - step
     while current >= floor:
@@ -535,8 +593,6 @@ def _checkbox_should_check(checked_when: Any, value: Any) -> bool:
     if checked_when is None:
         return bool(value)
     if isinstance(value, bool):
-        # Avoid bool→str pitfalls: treat boolean values literally for option checkboxes only
-        # if the configured checked_when is also a bool.
         if isinstance(checked_when, bool):
             return value == checked_when
         return False

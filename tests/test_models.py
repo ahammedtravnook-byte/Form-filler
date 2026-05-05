@@ -1,4 +1,4 @@
-"""Tests for Pydantic models and coordinate-map loading."""
+"""Tests for Pydantic models and fields-config loading."""
 
 from __future__ import annotations
 
@@ -9,12 +9,13 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from pdf_filler.coordinates import load_coordinate_map, summarise_coordinate_map
+from pdf_filler.coordinates import load_fields_config, summarise_fields_config
 from pdf_filler.exceptions import CoordinateMapError
 from pdf_filler.models import (
     CheckboxFieldConfig,
-    CoordinateMap,
+    CheckboxGroupFieldConfig,
     DateFieldConfig,
+    FieldsConfig,
     MultilineTextFieldConfig,
     TemplateMetadata,
     TextFieldConfig,
@@ -22,126 +23,141 @@ from pdf_filler.models import (
 
 
 def test_text_field_config_defaults() -> None:
-    cfg = TextFieldConfig(source="a.b", page=1, x=10, y=20)
+    cfg = TextFieldConfig(data_key="surname", page=1, x=10, y=20)
     assert cfg.type == "text"
-    assert cfg.font_size == 10.0
+    assert cfg.font_size == 9.0
     assert cfg.font == "helv"
     assert cfg.align == "left"
-    assert cfg.overflow == "error"
+    assert cfg.overflow == "shrink"
     assert cfg.required is False
 
 
 def test_text_field_min_font_size_must_not_exceed_font_size() -> None:
     with pytest.raises(ValidationError):
         TextFieldConfig(
-            source="a", page=1, x=0, y=0, font_size=8, min_font_size=12
+            data_key="a", page=1, x=0, y=0, font_size=8, min_font_size=12
         )
 
 
-def test_multiline_field_requires_max_width_and_line_height() -> None:
+def test_multiline_field_requires_width() -> None:
     with pytest.raises(ValidationError):
         MultilineTextFieldConfig(
-            source="a.b", page=1, x=0, y=0  # type: ignore[call-arg]
+            data_key="a", page=1, x=0, y=0  # type: ignore[call-arg]
         )
 
 
 def test_checkbox_field_basic() -> None:
     cfg = CheckboxFieldConfig(
-        source="a.b", page=1, x=0, y=0, checked_when="male", check_style="x"
+        data_key="sex", page=1, x=0, y=0, checked_when="male", check_style="x"
     )
     assert cfg.type == "checkbox"
     assert cfg.box_size == 8.0
 
 
+def test_checkbox_group_basic() -> None:
+    cfg = CheckboxGroupFieldConfig(
+        data_key="civil_status",
+        page=1,
+        type="checkbox_group",
+        options={
+            "Single": {"x": 10, "y": 20},
+            "Married": {"x": 30, "y": 20},
+        },
+    )
+    assert cfg.type == "checkbox_group"
+    assert cfg.options["Single"].x == 10
+
+
 def test_date_field_basic() -> None:
-    cfg = DateFieldConfig(source="a.b", page=1, x=0, y=0, format="%d-%m-%Y")
+    cfg = DateFieldConfig(
+        data_key="dob", page=1, x=0, y=0, type="date", format="%d-%m-%Y"
+    )
     assert cfg.type == "date"
     assert cfg.format == "%d-%m-%Y"
 
 
-def test_coordinate_map_discriminated_union(small_coordinate_map: dict[str, Any]) -> None:
-    cmap = CoordinateMap.model_validate(small_coordinate_map)
-    assert isinstance(cmap.fields["surname"], TextFieldConfig)
-    assert isinstance(cmap.fields["dob"], DateFieldConfig)
-    assert isinstance(cmap.fields["address"], MultilineTextFieldConfig)
-    assert isinstance(cmap.fields["sex_male"], CheckboxFieldConfig)
+def test_fields_config_discriminated_union(small_fields_config: dict[str, Any]) -> None:
+    cfg = FieldsConfig.model_validate(small_fields_config)
+    assert isinstance(cfg.fields["surname"], TextFieldConfig)
+    assert isinstance(cfg.fields["dob"], DateFieldConfig)
+    assert isinstance(cfg.fields["address"], MultilineTextFieldConfig)
+    assert isinstance(cfg.fields["sex_male"], CheckboxFieldConfig)
+    assert isinstance(cfg.fields["civil_status"], CheckboxGroupFieldConfig)
 
 
-def test_coordinate_map_rejects_unknown_field_type(
-    small_coordinate_map: dict[str, Any],
+def test_fields_config_rejects_unknown_field_type(
+    small_fields_config: dict[str, Any],
 ) -> None:
-    bad = dict(small_coordinate_map)
+    bad = dict(small_fields_config)
     bad["fields"] = dict(bad["fields"])
     bad["fields"]["weird"] = {
         "type": "not_a_real_type",
-        "source": "x",
+        "data_key": "x",
         "page": 1,
         "x": 0,
         "y": 0,
     }
     with pytest.raises(ValidationError):
-        CoordinateMap.model_validate(bad)
+        FieldsConfig.model_validate(bad)
 
 
-def test_coordinate_map_rejects_extra_keys(small_coordinate_map: dict[str, Any]) -> None:
-    bad = dict(small_coordinate_map)
+def test_fields_config_rejects_extra_keys(small_fields_config: dict[str, Any]) -> None:
+    bad = dict(small_fields_config)
     bad["fields"] = dict(bad["fields"])
     bad["fields"]["surname"] = {**bad["fields"]["surname"], "made_up_key": 1}
     with pytest.raises(ValidationError):
-        CoordinateMap.model_validate(bad)
+        FieldsConfig.model_validate(bad)
 
 
-def test_coordinate_map_must_be_non_empty() -> None:
+def test_fields_config_must_be_non_empty() -> None:
     with pytest.raises(ValidationError):
-        CoordinateMap.model_validate(
+        FieldsConfig.model_validate(
             {
-                "template_id": "x",
-                "template_version": "1",
-                "page_size": "A4",
-                "coordinate_system": "pymupdf",
-                "units": "points",
+                "form_name": "x",
+                "pages": [],
                 "fields": {},
             }
         )
 
 
-def test_load_coordinate_map_missing_file(tmp_path: Path) -> None:
+def test_load_fields_config_missing_file(tmp_path: Path) -> None:
     with pytest.raises(CoordinateMapError, match="not found"):
-        load_coordinate_map(tmp_path / "nope.json")
+        load_fields_config(tmp_path / "nope.json")
 
 
-def test_load_coordinate_map_invalid_json(tmp_path: Path) -> None:
+def test_load_fields_config_invalid_json(tmp_path: Path) -> None:
     p = tmp_path / "bad.json"
     p.write_text("{not valid json", encoding="utf-8")
     with pytest.raises(CoordinateMapError):
-        load_coordinate_map(p)
+        load_fields_config(p)
 
 
-def test_load_coordinate_map_top_level_must_be_object(tmp_path: Path) -> None:
+def test_load_fields_config_top_level_must_be_object(tmp_path: Path) -> None:
     p = tmp_path / "list.json"
     p.write_text("[]", encoding="utf-8")
     with pytest.raises(CoordinateMapError, match="object at the top level"):
-        load_coordinate_map(p)
+        load_fields_config(p)
 
 
-def test_load_coordinate_map_validation_error_lists_each_problem(
-    tmp_path: Path, small_coordinate_map: dict[str, Any]
+def test_load_fields_config_validation_error_lists_each_problem(
+    tmp_path: Path, small_fields_config: dict[str, Any]
 ) -> None:
-    bad = json.loads(json.dumps(small_coordinate_map))
+    bad = json.loads(json.dumps(small_fields_config))
     bad["fields"]["surname"]["page"] = -1  # invalid (PositiveInt)
     p = tmp_path / "bad.json"
     p.write_text(json.dumps(bad), encoding="utf-8")
     with pytest.raises(CoordinateMapError) as exc_info:
-        load_coordinate_map(p)
+        load_fields_config(p)
     assert "page" in str(exc_info.value)
 
 
-def test_summarise_coordinate_map(small_coordinate_map: dict[str, Any]) -> None:
-    cmap = CoordinateMap.model_validate(small_coordinate_map)
-    summary = summarise_coordinate_map(cmap)
-    assert summary["field_count"] == len(small_coordinate_map["fields"])
+def test_summarise_fields_config(small_fields_config: dict[str, Any]) -> None:
+    cfg = FieldsConfig.model_validate(small_fields_config)
+    summary = summarise_fields_config(cfg)
+    assert summary["field_count"] == len(small_fields_config["fields"])
     assert summary["fields_by_type"]["text"] >= 1
     assert summary["fields_by_type"]["checkbox"] >= 1
+    assert summary["fields_by_type"]["checkbox_group"] >= 1
     assert summary["fields_by_page"][1] >= 1
 
 

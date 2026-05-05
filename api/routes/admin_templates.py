@@ -1,27 +1,27 @@
-"""Admin routes: upload, update, delete templates and coordinate maps.
+"""Admin routes: upload, update, delete templates and fields configs.
 
 All routes require the admin API key via Bearer token.
 
 Upload rules
 ------------
 * POST /admin/templates/{template_id}
-    — Requires: coordinate_map (JSON file)
+    — Requires: fields_config (JSON file)
     — Optional: template_pdf (PDF file), template_metadata (JSON file)
     — Creates a new template directory. Fails with 409 if already exists.
 
 * PUT /admin/templates/{template_id}
     — Same fields as POST, but replaces an existing template.
-    — Requires: coordinate_map (JSON file)
+    — Requires: fields_config (JSON file)
     — Optional: template_pdf (PDF file), template_metadata (JSON file)
 
-* PATCH /admin/templates/{template_id}/coordinate-map
-    — Replace only the coordinate_map.json of an existing template.
+* PATCH /admin/templates/{template_id}/fields-config
+    — Replace only the fields_config.json of an existing template.
 
 * DELETE /admin/templates/{template_id}
     — Removes the entire template directory.
 
-* GET /admin/templates/{template_id}/coordinate-map
-    — Returns the raw coordinate_map.json content (useful for inspection).
+* GET /admin/templates/{template_id}/fields-config
+    — Returns the raw fields_config.json content (useful for inspection).
 """
 
 from __future__ import annotations
@@ -35,10 +35,10 @@ from api.core.config import settings
 from api.core.logging import get_logger
 from api.dependencies.auth import require_admin
 from api.dependencies.templates import get_templates_root
-from api.schemas.template import CoordinateMapResponse
+from api.schemas.template import FieldsConfigResponse
 from api.schemas.validation import AdminTemplateDeleteResponse, AdminTemplateUploadResponse
 from api.services import storage_service as store
-from pdf_filler.coordinates import load_coordinate_map
+from pdf_filler.coordinates import load_fields_config
 
 _log = get_logger("api.admin_templates")
 
@@ -54,17 +54,17 @@ router = APIRouter(
 # --------------------------------------------------------------------------- #
 
 
-def _read_and_validate_map(upload: UploadFile) -> bytes:
-    """Read the coordinate map upload, enforce size limit, validate JSON + schema."""
+def _read_and_validate_fields_config(upload: UploadFile) -> bytes:
+    """Read the fields config upload, enforce size limit, validate JSON + schema."""
     raw = upload.file.read()
     if len(raw) > settings.max_upload_bytes:
-        raise HTTPException(413, "coordinate_map file too large.")
+        raise HTTPException(413, "fields_config file too large.")
     try:
         json.loads(raw)
     except json.JSONDecodeError as exc:
-        raise HTTPException(422, f"coordinate_map is not valid JSON: {exc}") from exc
+        raise HTTPException(422, f"fields_config is not valid JSON: {exc}") from exc
 
-    # Validate against CoordinateMap schema — raises CoordinateMapError → 422 via middleware
+    # Validate against FieldsConfig schema — raises CoordinateMapError → 422 via middleware
     import tempfile
     from pathlib import Path as _P
 
@@ -72,7 +72,7 @@ def _read_and_validate_map(upload: UploadFile) -> bytes:
         tmp.write(raw)
         tmp_path = _P(tmp.name)
     try:
-        load_coordinate_map(tmp_path)
+        load_fields_config(tmp_path)
     finally:
         tmp_path.unlink(missing_ok=True)
 
@@ -108,11 +108,11 @@ def _read_meta(upload: UploadFile) -> bytes:
     "/{template_id}",
     response_model=AdminTemplateUploadResponse,
     status_code=201,
-    summary="Upload a new template (PDF + coordinate map)",
+    summary="Upload a new template (PDF + fields config)",
 )
 async def create_template(
     template_id: str,
-    coordinate_map: UploadFile = File(..., description="coordinate_map.json"),
+    fields_config: UploadFile = File(..., description="fields_config.json"),
     template_pdf: UploadFile | None = File(None, description="template.pdf (optional now, required before filling)"),
     template_metadata: UploadFile | None = File(None, description="template_metadata.json (optional)"),
     templates_root: Path = Depends(get_templates_root),
@@ -120,7 +120,7 @@ async def create_template(
     if store.template_exists(templates_root, template_id):
         raise HTTPException(409, f"Template '{template_id}' already exists. Use PUT to update.")
 
-    map_bytes = _read_and_validate_map(coordinate_map)
+    map_bytes = _read_and_validate_fields_config(fields_config)
     pdf_bytes = _read_pdf(template_pdf) if template_pdf else None
     meta_bytes = _read_meta(template_metadata) if template_metadata else None
 
@@ -141,18 +141,18 @@ async def create_template(
 @router.put(
     "/{template_id}",
     response_model=AdminTemplateUploadResponse,
-    summary="Replace an existing template (PDF + coordinate map)",
+    summary="Replace an existing template (PDF + fields config)",
 )
 async def update_template(
     template_id: str,
-    coordinate_map: UploadFile = File(..., description="coordinate_map.json"),
+    fields_config: UploadFile = File(..., description="fields_config.json"),
     template_pdf: UploadFile | None = File(None, description="template.pdf"),
     template_metadata: UploadFile | None = File(None, description="template_metadata.json"),
     templates_root: Path = Depends(get_templates_root),
 ) -> AdminTemplateUploadResponse:
     store.require_template(templates_root, template_id)
 
-    map_bytes = _read_and_validate_map(coordinate_map)
+    map_bytes = _read_and_validate_fields_config(fields_config)
     pdf_bytes = _read_pdf(template_pdf) if template_pdf else None
     meta_bytes = _read_meta(template_metadata) if template_metadata else None
 
@@ -171,18 +171,18 @@ async def update_template(
 
 
 @router.patch(
-    "/{template_id}/coordinate-map",
+    "/{template_id}/fields-config",
     response_model=AdminTemplateUploadResponse,
-    summary="Replace only the coordinate map of an existing template",
+    summary="Replace only the fields config of an existing template",
 )
-async def update_coordinate_map(
+async def update_fields_config(
     template_id: str,
-    coordinate_map: UploadFile = File(..., description="New coordinate_map.json"),
+    fields_config: UploadFile = File(..., description="New fields_config.json"),
     templates_root: Path = Depends(get_templates_root),
 ) -> AdminTemplateUploadResponse:
     store.require_template(templates_root, template_id)
 
-    map_bytes = _read_and_validate_map(coordinate_map)
+    map_bytes = _read_and_validate_fields_config(fields_config)
 
     saved = store.save_template_files(
         templates_root,
@@ -193,23 +193,23 @@ async def update_coordinate_map(
     )
     return AdminTemplateUploadResponse(
         template_id=template_id,
-        message="Coordinate map updated.",
+        message="Fields config updated.",
         files_saved=saved,
     )
 
 
 @router.get(
-    "/{template_id}/coordinate-map",
-    response_model=CoordinateMapResponse,
-    summary="Inspect the coordinate map of a template",
+    "/{template_id}/fields-config",
+    response_model=FieldsConfigResponse,
+    summary="Inspect the fields config of a template",
 )
-def get_coordinate_map(
+def get_fields_config(
     template_id: str,
     templates_root: Path = Depends(get_templates_root),
-) -> CoordinateMapResponse:
+) -> FieldsConfigResponse:
     store.require_template(templates_root, template_id)
     raw = store.load_raw_map(templates_root, template_id)
-    return CoordinateMapResponse(template_id=template_id, coordinate_map=raw)
+    return FieldsConfigResponse(template_id=template_id, fields_config=raw)
 
 
 @router.delete(

@@ -157,7 +157,8 @@ def test_validate_template_path_empty_file(tmp_path: Path) -> None:
 
 def test_validate_input_data_ok(written_input_data: Path) -> None:
     raw = validate_input_data(written_input_data)
-    assert "applicant" in raw
+    assert "surname" in raw
+    assert raw["surname"] == "DOE"
 
 
 def test_validate_input_data_missing_file(tmp_path: Path) -> None:

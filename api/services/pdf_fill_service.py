@@ -17,10 +17,10 @@ from typing import Any
 from api.core.config import settings
 from api.core.logging import get_logger
 from api.services import storage_service as store
-from pdf_filler.coordinates import load_coordinate_map
+from pdf_filler.coordinates import load_fields_config
 from pdf_filler.exceptions import PdfFillerError
 from pdf_filler.filler import FillResult, PdfFiller
-from pdf_filler.models import CoordinateMap, TemplateMetadata
+from pdf_filler.models import FieldsConfig, TemplateMetadata
 from pdf_filler.validators import load_template_metadata
 
 _log = get_logger("api.pdf_fill")
@@ -36,10 +36,10 @@ def _load_filler(
     coord_map_path: Path,
     meta_path: Path | None,
 ) -> PdfFiller:
-    """Build a PdfFiller; coord map and metadata are loaded once and reused."""
-    coord_map: CoordinateMap = load_coordinate_map(coord_map_path)
+    """Build a PdfFiller; fields config and metadata are loaded once and reused."""
+    fields_config: FieldsConfig = load_fields_config(coord_map_path)
     metadata: TemplateMetadata | None = load_template_metadata(meta_path)
-    return PdfFiller(template_path, coord_map, metadata)
+    return PdfFiller(template_path, fields_config, metadata)
 
 
 def _fill_sync(
@@ -72,8 +72,8 @@ def _fill_many_sync(
     results: list[RecordResult] = []
 
     for idx, data in enumerate(records):
-        # Build a meaningful filename: use surname if available
-        surname = _dig(data, "applicant", "surname") or ""
+        # Build a meaningful filename: use surname if available (flat data key)
+        surname = str(data.get("surname", "")).strip()
         label = f"{surname}_{idx + 1:03d}" if surname else f"{idx + 1:03d}"
         filename = f"{template_id}_{label}.pdf"
         out_path = out_dir / filename
@@ -94,15 +94,6 @@ def _fill_many_sync(
 
     return results
 
-
-def _dig(data: dict[str, Any], *keys: str) -> str:
-    """Safely walk nested dict keys; return empty string if missing."""
-    node: Any = data
-    for k in keys:
-        if not isinstance(node, dict):
-            return ""
-        node = node.get(k, "")
-    return str(node) if node else ""
 
 
 def _build_zip(out_dir: Path, results: list[RecordResult]) -> bytes:

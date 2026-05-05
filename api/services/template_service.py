@@ -15,7 +15,7 @@ def get_template_metadata_response(
     store.require_template(templates_root, template_id)
 
     has_pdf = store.pdf_path(templates_root, template_id).exists()
-    has_map = store.map_path(templates_root, template_id).exists()
+    has_fields_config = store.map_path(templates_root, template_id).exists()
     meta = store.load_metadata_safe(templates_root, template_id)
 
     from pdf_filler.models import TemplateMetadata  # local import to avoid circular
@@ -26,7 +26,7 @@ def get_template_metadata_response(
             template_version=meta.template_version,
             description=meta.description,
             expected_pages=meta.expected_pages,
-            has_coordinate_map=has_map,
+            has_fields_config=has_fields_config,
             has_pdf=has_pdf,
         )
 
@@ -36,7 +36,7 @@ def get_template_metadata_response(
         template_version="unknown",
         description="",
         expected_pages=0,
-        has_coordinate_map=has_map,
+        has_fields_config=has_fields_config,
         has_pdf=has_pdf,
     )
 

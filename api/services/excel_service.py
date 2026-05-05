@@ -1,16 +1,16 @@
-"""Parse an uploaded Excel file into a list of nested data dicts.
+"""Parse an uploaded Excel file into a list of flat data dicts.
 
 Column header convention
 ------------------------
-Headers must match the ``source`` dotted paths declared in the template's
-coordinate map — e.g. ``applicant.surname``, ``travel.purpose.tourism``.
+Headers must match the ``data_key`` values declared in the template's
+fields config — e.g. ``surname``, ``first_name``, ``passport_number``.
 
-The parser reconstructs the nested dict structure that PdfFiller expects:
+The parser builds flat dicts that PdfFiller expects:
 
-    applicant.surname  → data["applicant"]["surname"]
-    travel.purpose.tourism → data["travel"]["purpose"]["tourism"]
+    surname        → data["surname"]
+    passport_number → data["passport_number"]
 
-Boolean columns (checkbox sources like ``travel.purpose.tourism``) accept:
+Boolean columns (checkbox data_keys) accept:
   - Excel TRUE/FALSE booleans
   - Strings: "true"/"false", "yes"/"no", "1"/"0" (case-insensitive)
   - Numeric: 1 / 0
@@ -24,15 +24,6 @@ from typing import Any
 
 import openpyxl
 from fastapi import HTTPException
-
-
-def _set_nested(data: dict[str, Any], dotted_key: str, value: Any) -> None:
-    """Write ``value`` into ``data`` at the path described by ``dotted_key``."""
-    parts = dotted_key.split(".")
-    node = data
-    for part in parts[:-1]:
-        node = node.setdefault(part, {})
-    node[parts[-1]] = value
 
 
 def _coerce(value: Any) -> Any:
@@ -52,13 +43,14 @@ def _coerce(value: Any) -> Any:
 
 
 def parse_excel(file_bytes: bytes) -> list[dict[str, Any]]:
-    """Parse an Excel workbook and return one dict per data row.
+    """Parse an Excel workbook and return one flat dict per data row.
 
     Args:
         file_bytes: Raw bytes of the uploaded .xlsx file.
 
     Returns:
-        List of nested dicts, one per non-empty row (header row excluded).
+        List of flat dicts, one per non-empty row (header row excluded).
+        Keys are the column headers (data_key values from the fields config).
 
     Raises:
         HTTPException 422: If the file cannot be parsed or has no header row.
@@ -76,12 +68,12 @@ def parse_excel(file_bytes: bytes) -> list[dict[str, Any]]:
     if not rows:
         raise HTTPException(422, "Excel file is empty.")
 
-    # First row = headers (dotted source paths)
+    # First row = headers (data_key values)
     headers: list[str] = [str(h).strip() if h is not None else "" for h in rows[0]]
     if not any(headers):
         raise HTTPException(422, "Excel header row is empty.")
 
-    # Validate headers are non-empty strings (skip blank columns silently)
+    # Skip blank columns silently
     valid_cols: list[tuple[int, str]] = [
         (i, h) for i, h in enumerate(headers) if h
     ]
@@ -97,7 +89,7 @@ def parse_excel(file_bytes: bytes) -> list[dict[str, Any]]:
         data: dict[str, Any] = {}
         for col_idx, header in valid_cols:
             raw = row[col_idx] if col_idx < len(row) else None
-            _set_nested(data, header, _coerce(raw))
+            data[header] = _coerce(raw)
 
         records.append(data)
 

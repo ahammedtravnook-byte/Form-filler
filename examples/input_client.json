@@ -1,0 +1,42 @@
+{
+  "_comment": "Schengen Visa Application - Client Data Template",
+  "_instructions": "Fill in the values below. Leave a field as empty string or remove it to skip it.",
+
+  "surname": "Al Rashidi",
+  "surname_at_birth": "Al Rashidi",
+  "first_name": "Ahmed",
+  "date_of_birth": "15-03-1990",
+  "place_of_birth": "Dubai",
+  "country_of_birth": "UAE",
+  "current_nationality": "Emirati",
+  "nationality_at_birth": "",
+  "other_nationalities": "",
+
+  "sex": "Male",
+
+  "civil_status": "Married",
+
+  "national_identity_number": "784-1990-1234567-1",
+
+  "travel_document_type": "Ordinary passport",
+  "passport_number": "A12345678",
+  "passport_issue_date": "01-01-2020",
+  "passport_valid_until": "01-01-2030",
+  "passport_issued_by": "UAE",
+
+  "home_address": "Villa 12, Al Barsha, Dubai, UAE",
+  "email_address": "ahmed.alrashidi@email.com",
+  "telephone": "+971 50 123 4567",
+
+  "current_occupation": "Software Engineer",
+  "employer_name_address": "Tech Solutions LLC, Business Bay, Dubai, UAE — +971 4 567 8900",
+
+  "journey_purpose": "Tourism",
+  "additional_purpose_info": "Leisure tourism to France and Italy",
+
+  "main_destination": "France",
+  "first_entry_state": "France",
+  "number_of_entries": "Multiple entries",
+  "arrival_date": "01-06-2025",
+  "departure_date": "15-06-2025"
+}

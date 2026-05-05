@@ -20,7 +20,7 @@ from api.schemas.submission import (
 )
 from api.services import pdf_fill_service, storage_service as store, validation_service
 from api.services.excel_service import parse_excel
-from pdf_filler.coordinates import load_coordinate_map
+from pdf_filler.coordinates import load_fields_config
 from pdf_filler.exceptions import PdfFillerError
 
 _log = get_logger("api.submissions")
@@ -48,8 +48,8 @@ def validate_submission(
 ) -> ValidationResponse:
     store.require_template(templates_root, template_id)
     map_path = store.require_map(templates_root, template_id)
-    coord_map = load_coordinate_map(map_path)
-    return validation_service.validate_data_against_map(template_id, body.data, coord_map)
+    fields_cfg = load_fields_config(map_path)
+    return validation_service.validate_data_against_map(template_id, body.data, fields_cfg)
 
 
 # --------------------------------------------------------------------------- #
@@ -163,8 +163,8 @@ async def fill_template_batch(
             "content": {_ZIP_MEDIA: {}},
             "description": (
                 "ZIP archive containing one PDF per row in the uploaded Excel file. "
-                "Column headers must be the dotted source paths from the coordinate map "
-                "(e.g. applicant.surname, travel.purpose.tourism)."
+                "Column headers must match the data_key values from the fields config "
+                "(e.g. surname, first_name, passport_number)."
             ),
             "headers": {
                 "X-Batch-Total": {"description": "Total rows parsed from Excel."},
@@ -180,7 +180,7 @@ async def fill_template_batch(
 )
 async def fill_template_excel(
     template_id: str,
-    file: UploadFile = File(..., description="Excel file (.xlsx). One row = one filled PDF."),
+    file: UploadFile = File(..., description="Excel file (.xlsx). One row = one filled PDF. Column headers = data_key values from fields_config.json."),
     templates_root: Path = Depends(get_templates_root),
 ) -> Response:
     store.require_template(templates_root, template_id)

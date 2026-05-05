@@ -5,7 +5,7 @@ Five commands are exposed:
 * ``fill`` — fill a template with input data and write a new PDF.
 * ``inspect-template`` — print page count and per-page geometry.
 * ``make-coordinate-guide`` — render PNGs with a coordinate grid for calibration.
-* ``validate-coordinate-map`` — load and validate a coordinate map.
+* ``validate-fields-config`` — load and validate a fields config.
 * ``hash-template`` — print the SHA-256 hash of a template PDF.
 """
 
@@ -22,7 +22,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from .coordinates import load_coordinate_map, summarise_coordinate_map
+from .coordinates import load_fields_config, summarise_fields_config
 from .exceptions import PdfFillerError
 from .filler import PdfFiller
 from .logging_config import configure_logging
@@ -37,6 +37,17 @@ app = typer.Typer(
     add_completion=False,
 )
 console = Console()
+
+
+# --------------------------------------------------------------------------- #
+# Default file locations                                                       #
+# --------------------------------------------------------------------------- #
+
+# All paths are relative to the project root (current working directory).
+DEFAULT_TEMPLATE = Path("templates/schengen/template.pdf")
+DEFAULT_FIELDS_CONFIG = Path("templates/schengen/fields_config.json")
+DEFAULT_DATA = Path("examples/input_client.json")
+DEFAULT_METADATA = Path("templates/schengen/template_metadata.json")
 
 
 # --------------------------------------------------------------------------- #
@@ -65,12 +76,26 @@ def _abort(msg: str, *, code: int = 1) -> None:
 
 @app.command("fill")
 def fill_cmd(
-    template: Annotated[Path, typer.Option("--template", help="Path to template PDF.")],
-    data: Annotated[Path, typer.Option("--data", help="Path to input data JSON.")],
-    coordinates: Annotated[
-        Path, typer.Option("--coordinates", help="Path to coordinate map JSON.")
-    ],
-    output: Annotated[Path, typer.Option("--output", help="Path to write filled PDF.")],
+    template: Annotated[
+        Path,
+        typer.Option("--template", help="Path to template PDF."),
+    ] = DEFAULT_TEMPLATE,
+    data: Annotated[
+        Path,
+        typer.Option("--data", help="Path to input data JSON."),
+    ] = DEFAULT_DATA,
+    fields_config: Annotated[
+        Path,
+        typer.Option(
+            "--fields-config",
+            "--coordinates",
+            help="Path to fields config JSON.",
+        ),
+    ] = DEFAULT_FIELDS_CONFIG,
+    output: Annotated[
+        Path,
+        typer.Option("--output", help="Path to write filled PDF."),
+    ] = Path("output/filled.pdf"),
     metadata: Annotated[
         Path | None,
         typer.Option("--metadata", help="Optional template metadata JSON."),
@@ -99,11 +124,11 @@ def fill_cmd(
     _bootstrap_logging(verbose)
 
     try:
-        coord_map = load_coordinate_map(coordinates)
+        config = load_fields_config(fields_config)
         meta = load_template_metadata(metadata)
         input_data = validate_input_data(data)
 
-        filler = PdfFiller(template, coord_map, metadata=meta)
+        filler = PdfFiller(template, config, metadata=meta)
         result = filler.fill(
             data=input_data,
             output_path=output,
@@ -140,7 +165,10 @@ def fill_cmd(
 
 @app.command("inspect-template")
 def inspect_template_cmd(
-    template: Annotated[Path, typer.Option("--template", help="Path to template PDF.")],
+    template: Annotated[
+        Path,
+        typer.Option("--template", help="Path to template PDF."),
+    ] = DEFAULT_TEMPLATE,
     page: Annotated[
         int | None,
         typer.Option("--page", help="1-based page number to inspect (default: all)."),
@@ -181,11 +209,14 @@ def inspect_template_cmd(
 
 @app.command("make-coordinate-guide")
 def make_coordinate_guide_cmd(
-    template: Annotated[Path, typer.Option("--template", help="Path to template PDF.")],
+    template: Annotated[
+        Path,
+        typer.Option("--template", help="Path to template PDF."),
+    ] = DEFAULT_TEMPLATE,
     output: Annotated[
         Path,
         typer.Option("--output", help="Output directory for guide PNGs."),
-    ],
+    ] = Path("output/guide"),
     grid_step: Annotated[
         float,
         typer.Option("--grid-step", help="Minor grid spacing in points."),
@@ -218,26 +249,31 @@ def make_coordinate_guide_cmd(
 
 
 # --------------------------------------------------------------------------- #
-# validate-coordinate-map                                                      #
+# validate-fields-config                                                       #
 # --------------------------------------------------------------------------- #
 
 
-@app.command("validate-coordinate-map")
-def validate_coordinate_map_cmd(
-    coordinates: Annotated[
-        Path, typer.Option("--coordinates", help="Path to coordinate map JSON.")
-    ],
+@app.command("validate-fields-config")
+def validate_fields_config_cmd(
+    fields_config: Annotated[
+        Path,
+        typer.Option(
+            "--fields-config",
+            "--coordinates",
+            help="Path to fields config JSON.",
+        ),
+    ] = DEFAULT_FIELDS_CONFIG,
     verbose: VerboseOpt = False,
 ) -> None:
-    """Validate a coordinate map JSON file and print a summary."""
+    """Validate a fields config JSON file and print a summary."""
     _bootstrap_logging(verbose)
     try:
-        coord_map = load_coordinate_map(coordinates)
+        config = load_fields_config(fields_config)
     except PdfFillerError as exc:
         _abort(str(exc))
 
-    summary = summarise_coordinate_map(coord_map)
-    console.print(Panel(json.dumps(summary, indent=2), title="Coordinate map summary"))
+    summary = summarise_fields_config(config)
+    console.print(Panel(json.dumps(summary, indent=2), title="Fields config summary"))
 
 
 # --------------------------------------------------------------------------- #
@@ -247,7 +283,10 @@ def validate_coordinate_map_cmd(
 
 @app.command("hash-template")
 def hash_template_cmd(
-    template: Annotated[Path, typer.Option("--template", help="Path to template PDF.")],
+    template: Annotated[
+        Path,
+        typer.Option("--template", help="Path to template PDF."),
+    ] = DEFAULT_TEMPLATE,
     update_metadata: Annotated[
         Path | None,
         typer.Option(

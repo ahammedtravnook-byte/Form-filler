@@ -4,7 +4,7 @@ Layout on disk:
     templates/
         <template_id>/
             template.pdf
-            coordinate_map.json
+            fields_config.json
             template_metadata.json   (optional)
 """
 
@@ -23,7 +23,7 @@ from pdf_filler.validators import load_template_metadata
 _log = get_logger("api.storage")
 
 _PDF_NAME = "template.pdf"
-_MAP_NAME = "coordinate_map.json"
+_MAP_NAME = "fields_config.json"
 _META_NAME = "template_metadata.json"
 
 
@@ -83,13 +83,13 @@ def require_map(templates_root: Path, template_id: str) -> Path:
     p = map_path(templates_root, template_id)
     if not p.exists():
         raise CoordinateMapError(
-            f"Coordinate map missing for '{template_id}'. Contact admin."
+            f"Fields config missing for '{template_id}'. Contact admin."
         )
     return p
 
 
 def load_raw_map(templates_root: Path, template_id: str) -> dict:  # type: ignore[type-arg]
-    """Load coordinate_map.json as a plain dict (no Pydantic validation)."""
+    """Load fields_config.json as a plain dict (no Pydantic validation)."""
     p = require_map(templates_root, template_id)
     return json.loads(p.read_text(encoding="utf-8"))
 
@@ -132,7 +132,7 @@ def save_template_files(
 
     (tdir / _MAP_NAME).write_bytes(map_bytes)
     saved.append(_MAP_NAME)
-    _log.info("Saved coordinate map for template '%s'.", template_id)
+    _log.info("Saved fields config for template '%s'.", template_id)
 
     if meta_bytes is not None:
         (tdir / _META_NAME).write_bytes(meta_bytes)

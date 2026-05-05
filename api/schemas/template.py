@@ -10,7 +10,7 @@ class TemplateMetadataResponse(BaseModel):
     template_version: str
     description: str
     expected_pages: int
-    has_coordinate_map: bool
+    has_fields_config: bool
     has_pdf: bool
 
 
@@ -19,7 +19,11 @@ class TemplateListResponse(BaseModel):
     total: int
 
 
-class CoordinateMapResponse(BaseModel):
-    """Admin-only: raw coordinate map content."""
+class FieldsConfigResponse(BaseModel):
+    """Admin-only: raw fields config content."""
     template_id: str
-    coordinate_map: dict  # type: ignore[type-arg]
+    fields_config: dict  # type: ignore[type-arg]
+
+
+# Back-compat alias
+CoordinateMapResponse = FieldsConfigResponse
