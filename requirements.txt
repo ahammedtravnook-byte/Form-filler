@@ -1,5 +1,13 @@
+# Core engine
 pymupdf>=1.24
 pydantic>=2.6
 typer>=0.12
 rich>=13.7
 python-dateutil>=2.9
+
+# API
+fastapi>=0.111
+uvicorn[standard]>=0.29
+pydantic-settings>=2.2
+python-multipart>=0.0.9
+openpyxl>=3.1
