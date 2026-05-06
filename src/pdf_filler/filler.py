@@ -134,7 +134,6 @@ class PdfFiller:
                 out_doc.insert_pdf(src_doc)
 
                 for name, fcfg in self.fields_config.fields.items():
-                    print(type(fcfg))
                     self._render_field(out_doc, name, fcfg, data, result, debug_boxes)
 
                 out_doc.save(

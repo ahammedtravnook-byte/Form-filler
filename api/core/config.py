@@ -38,6 +38,14 @@ class Settings(BaseSettings):
         default=50 * 1024 * 1024,
         description="Max PDF upload size in bytes.",
     )
+    max_batch_records: int = Field(
+        default=500,
+        description="Maximum number of records allowed in a single batch fill request.",
+    )
+    fill_worker_threads: int = Field(
+        default=4,
+        description="Size of the bounded thread pool used for PDF fill operations.",
+    )
     # Passed through to the pdf_filler engine
     debug_boxes: bool = Field(
         default=False,

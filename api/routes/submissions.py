@@ -132,6 +132,14 @@ async def fill_template_batch(
 ) -> Response:
     store.require_template(templates_root, template_id)
 
+    if len(body.records) > settings.max_batch_records:
+        from fastapi import HTTPException
+        raise HTTPException(
+            422,
+            f"Batch too large: {len(body.records)} records submitted, "
+            f"maximum allowed is {settings.max_batch_records}.",
+        )
+
     batch = await pdf_fill_service.fill_template_batch(
         templates_root, template_id, body.records
     )

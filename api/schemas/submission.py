@@ -20,12 +20,6 @@ class BatchFillRequest(BaseModel):
         description="One or more data objects. Each produces one filled PDF in the ZIP.",
     )
 
-    @model_validator(mode="after")
-    def _check_not_empty(self) -> "BatchFillRequest":
-        if not self.records:
-            raise ValueError("records must contain at least one entry.")
-        return self
-
 
 class BatchFillErrorDetail(BaseModel):
     index: int

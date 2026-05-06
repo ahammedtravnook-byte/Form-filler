@@ -10,6 +10,7 @@ import asyncio
 import io
 import zipfile
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -25,6 +26,35 @@ from pdf_filler.validators import load_template_metadata
 
 _log = get_logger("api.pdf_fill")
 
+# Bounded thread pool — prevents unbounded concurrency under burst load.
+# Size is controlled by PDF_API_FILL_WORKER_THREADS (default 4).
+_THREAD_POOL = ThreadPoolExecutor(max_workers=settings.fill_worker_threads)
+
+# Cache: maps (map_path_str, mtime_ns) → (FieldsConfig, TemplateMetadata|None)
+# Using mtime means the cache is automatically invalidated when the file changes
+# on disk (e.g. after an admin upload), so we never serve stale configs.
+_filler_cache: dict[tuple[str, int, int | None], tuple[FieldsConfig, TemplateMetadata | None]] = {}
+
+
+def _load_cached(
+    map_path: Path,
+    meta_path: Path | None,
+) -> tuple[FieldsConfig, TemplateMetadata | None]:
+    """Return (FieldsConfig, metadata) from cache; re-parse only when files change."""
+    map_mtime = map_path.stat().st_mtime_ns
+    meta_mtime = meta_path.stat().st_mtime_ns if (meta_path and meta_path.exists()) else None
+    cache_key = (str(map_path), map_mtime, meta_mtime)
+
+    if cache_key not in _filler_cache:
+        fields_config: FieldsConfig = load_fields_config(map_path)
+        metadata: TemplateMetadata | None = load_template_metadata(meta_path)
+        _filler_cache[cache_key] = (fields_config, metadata)
+        _log.debug("Cache miss — parsed fields config for '%s'.", map_path)
+    else:
+        _log.debug("Cache hit — reusing fields config for '%s'.", map_path)
+
+    return _filler_cache[cache_key]
+
 
 # --------------------------------------------------------------------------- #
 # Internal helpers                                                             #
@@ -36,9 +66,8 @@ def _load_filler(
     coord_map_path: Path,
     meta_path: Path | None,
 ) -> PdfFiller:
-    """Build a PdfFiller; fields config and metadata are loaded once and reused."""
-    fields_config: FieldsConfig = load_fields_config(coord_map_path)
-    metadata: TemplateMetadata | None = load_template_metadata(meta_path)
+    """Build a PdfFiller using cached FieldsConfig and metadata."""
+    fields_config, metadata = _load_cached(coord_map_path, meta_path)
     return PdfFiller(template_path, fields_config, metadata)
 
 
@@ -156,7 +185,7 @@ async def fill_template(
         out_path = Path(tmpdir) / "filled.pdf"
 
         result = await asyncio.get_event_loop().run_in_executor(
-            None,
+            _THREAD_POOL,
             _fill_sync,
             t_pdf,
             t_map,
@@ -198,7 +227,7 @@ async def fill_template_batch(
         out_dir = Path(tmpdir)
 
         record_results: list[RecordResult] = await asyncio.get_event_loop().run_in_executor(
-            None,
+            _THREAD_POOL,
             _fill_many_sync,
             t_pdf,
             t_map,

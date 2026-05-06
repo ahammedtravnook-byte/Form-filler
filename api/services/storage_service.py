@@ -27,7 +27,28 @@ _MAP_NAME = "fields_config.json"
 _META_NAME = "template_metadata.json"
 
 
+_SAFE_ID_CHARS = frozenset(
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "0123456789"
+    "-_"
+)
+
+
+def _validate_template_id(template_id: str) -> None:
+    """Reject template_ids that could escape the templates root via path traversal."""
+    if not template_id or not all(c in _SAFE_ID_CHARS for c in template_id):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Invalid template_id '{template_id}'. "
+                "Only alphanumeric characters, hyphens, and underscores are allowed."
+            ),
+        )
+
+
 def template_dir(templates_root: Path, template_id: str) -> Path:
+    _validate_template_id(template_id)
     return templates_root / template_id
 
 
