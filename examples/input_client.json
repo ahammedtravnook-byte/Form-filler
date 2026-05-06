@@ -1,0 +1,93 @@
+{
+  "_comment": "Schengen Visa Application - Client Data Template",
+  "_instructions": "Testing sample data: all fields and checkbox groups are filled with sample values.",
+
+  "surname": "Al Rashidi",
+  "surname_at_birth": "Al Mansoori",
+  "first_name": "Omar Ahmed",
+  "date_of_birth": "14-03-1989",
+  "place_of_birth": "Dubai",
+  "country_of_birth": "United Arab Emirates",
+  "current_nationality": "United Arab Emirates",
+  "nationality_at_birth": "United Arab Emirates",
+  "other_nationalities": "Canada",
+
+  "sex": "Male",
+  "civil_status": "Married",
+
+  "Parental_authority": "Ahmed Al Rashidi, father and legal guardian",
+  "national_identity_number": "784-1989-1234567-1",
+
+  "travel_document_type": "Ordinary passport",
+  "passport_number": "P12345678",
+  "passport_issue_date": "10-01-2022",
+  "passport_valid_until": "09-01-2032",
+  "passport_issued_by": "United Arab Emirates",
+
+  "family_member_surname": "Dupont",
+  "family_member_first_name": "Marie Claire",
+  "family_member_date_of_birth": "22-08-1987",
+  "family_member_nationality": "France",
+  "family_member_travel_document_or_id_number": "FR987654321",
+  "family_relationship_with_eu_eea_or_ch_citizen": "spouse",
+
+  "home_address": "Villa 24, Al Wasl Road, Dubai, United Arab Emirates",
+  "email_address": "omar.alrashidi@example.com",
+  "telephone": "+971501234567",
+
+  "residence_other_than_current_nationality": "Yes",
+  "residence_permit_or_equivalent_number": "UAE-RP-456789123",
+  "residence_permit_valid_until": "30-11-2028",
+
+  "current_occupation": "Business Development Manager",
+  "employer_name_address": "Gulf Horizon Trading LLC, Office 1204, Business Bay, Dubai, United Arab Emirates",
+
+  "journey_purpose": "Tourism",
+  "additional_purpose_info": "Tourism, business meetings, cultural visit, sports event attendance, family visit, study seminar, medical consultation, official appointment, and airport transit testing sample.",
+  "main_destination": "France",
+  "first_entry_state": "Germany",
+  "number_of_entries": "Multiple entries",
+  "arrival_date": "15-07-2026",
+  "departure_date": "29-07-2026",
+
+  "fingerprints_collected": "Yes",
+  "fingerprints_date": "12-06-2023",
+  "visa_sticker_number": "FRA123456789",
+
+  "entry_permit_issued_by": "Canada",
+  "entry_permit_valid_from": "01-01-2026",
+  "entry_permit_valid_until": "31-12-2026",
+
+  "inviting_person_name": "Hotel Le Central Paris / Jean Martin",
+  "inviting_person_address": "12 Rue de Rivoli, 75004 Paris, France, reservations@hotelcentral.example",
+  "inviting_person_telephone": "+33123456789",
+
+  "inviting_company_name": "EuroTech Consulting SAS, 45 Avenue des Champs-Elysees, 75008 Paris, France",
+  "contact_person_details": "Sophie Bernard, 45 Avenue des Champs-Elysees, 75008 Paris, France, sophie.bernard@example.com",
+  "company_telephone": "+33199887766",
+
+  "costs_covered_by": "Applicant",
+  "applicant_means_of_support": [
+    "Cash",
+    "Traveller's cheques",
+    "Credit card",
+    "Pre-paid accommodation",
+    "Pre-paid transport",
+    "Other"
+  ],
+
+  "sponsor_type": "Referred to in field 30 or 31",
+  "sponsor_means_of_support": [
+    "Cash",
+    "Accommodation provided",
+    "All expenses covered",
+    "Pre-paid transport",
+    "Other"
+  ],
+
+  "filler_name": "Layla Hassan",
+  "filler_address": "Office 305, Sheikh Zayed Road, Dubai, United Arab Emirates, layla.hassan@example.com",
+  "filler_telephone": "+971551112233",
+
+  "place_and_date": "Dubai, 06-05-2026"
+}

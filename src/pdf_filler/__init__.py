@@ -21,9 +21,11 @@ from .exceptions import (
 from .filler import FillResult, PdfFiller
 from .models import (
     CheckboxFieldConfig,
+    CheckboxGroupFieldConfig,
     CoordinateMap,
     DateFieldConfig,
     FieldConfig,
+    FieldsConfig,
     FillRequest,
     MultilineTextFieldConfig,
     TemplateMetadata,
@@ -32,11 +34,13 @@ from .models import (
 
 __all__ = [
     "CheckboxFieldConfig",
+    "CheckboxGroupFieldConfig",
     "CoordinateMap",
     "CoordinateMapError",
     "DataValidationError",
     "DateFieldConfig",
     "FieldConfig",
+    "FieldsConfig",
     "FillRequest",
     "FillResult",
     "MissingRequiredFieldError",
@@ -52,4 +56,4 @@ __all__ = [
     "UnsupportedFieldTypeError",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"

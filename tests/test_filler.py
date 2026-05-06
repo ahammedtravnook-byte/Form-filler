@@ -68,13 +68,12 @@ def test_required_field_missing_raises(
     small_input_data: dict[str, Any],
     tmp_path: Path,
 ) -> None:
-    bad = {**small_input_data, "applicant": {**small_input_data["applicant"]}}
-    del bad["applicant"]["surname"]
+    bad = {k: v for k, v in small_input_data.items() if k != "surname"}
 
     with pytest.raises(MissingRequiredFieldError) as exc_info:
         PdfFiller(synthetic_template, coord_map_obj).fill(bad, tmp_path / "out.pdf")
     assert exc_info.value.field_name == "surname"
-    assert exc_info.value.source_path == "applicant.surname"
+    assert exc_info.value.source_path == "surname"
 
 
 def test_optional_missing_field_is_skipped(
@@ -120,8 +119,7 @@ def test_checkbox_unchecked_for_empty_value(
     small_input_data: dict[str, Any],
     tmp_path: Path,
 ) -> None:
-    data = {**small_input_data, "applicant": {**small_input_data["applicant"]}}
-    data["applicant"]["sex"] = ""  # empty string → unchecked, not an error
+    data = {**small_input_data, "sex": ""}  # empty string → unchecked, not an error
     out = tmp_path / "out.pdf"
     result = PdfFiller(synthetic_template, coord_map_obj).fill(data, out)
     assert "sex_male" in result.fields_skipped
@@ -211,10 +209,10 @@ def test_overflow_error_raises_when_text_too_wide(
 ) -> None:
     bad = dict(small_coordinate_map)
     bad["fields"] = dict(bad["fields"])
-    # Force overflow: tiny max_width with large fixed font_size and overflow=error.
+    # Force overflow: tiny width with large fixed font_size and overflow=error.
     bad["fields"]["surname"] = {
         **bad["fields"]["surname"],
-        "max_width": 5,
+        "width": 5,
         "min_font_size": 10,
         "overflow": "error",
         "font_size": 10,

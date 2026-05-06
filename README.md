@@ -2,7 +2,7 @@
 
 A production-quality, **coordinate-based** static PDF template filler written in
 Python. Stamps text and checkbox marks onto a fixed visual template using a
-JSON input data file and a JSON coordinate map.
+flat JSON input data file and a JSON fields config.
 
 The first packaged template is the Schengen visa application form (4 pages),
 but the engine is template-agnostic.
@@ -28,16 +28,18 @@ values at precise coordinates. That's what this project does.
 
 ## Features
 
-- Pydantic v2-validated coordinate maps and template metadata.
+- Pydantic v2-validated fields config and template metadata.
 - Discriminated-union field types: `text`, `multiline_text`, `checkbox`,
-  `date`, `image` (placeholder), `signature_text`.
-- 1-based page numbers in the coordinate map (PyMuPDF uses 0-based internally).
-- Text alignment (`left` / `center` / `right`), font size, max width, max
+  `checkbox_group`, `date`, `image` (placeholder), `signature_text`.
+- 1-based page numbers (PyMuPDF uses 0-based internally).
+- Text alignment (`left` / `center` / `right`), font size, width, max
   characters.
-- Overflow strategies: `error` (default), `shrink`, `truncate`.
-- Checkboxes: boolean and option-style (`checked_when`); draw as `x`,
-  `check`, or `filled_square`.
-- Nested data paths (`applicant.surname`, `travel.purpose.tourism`).
+- Overflow strategies: `error`, `shrink` (default), `truncate`.
+- Checkboxes: standalone boolean / option style (`checked_when`), plus
+  multi-option `checkbox_group` for sets like Sex, Civil status, Purpose of
+  journey, etc. Drawn as `x`, `check`, or `filled_square`.
+- **Flat input data** — fields reference values by `data_key` directly
+  (e.g. `surname`, `passport_number`).
 - Optional vs required fields with clear missing-data errors.
 - SHA-256 template hash check against metadata.
 - `--debug-boxes` overlay for visual coordinate calibration.
@@ -68,10 +70,10 @@ pdf_filler/
 │   ├── utils.py
 │   └── validators.py
 ├── templates/schengen/
-│   ├── coordinate_map.json
+│   ├── fields_config.json
 │   └── template_metadata.json    # drop your template.pdf here
 ├── examples/
-│   └── input_data.example.json
+│   └── input_client.json
 ├── output/                       # generated PDFs land here (.gitkeep'd)
 └── tests/
     ├── conftest.py
@@ -109,15 +111,25 @@ pip install -r requirements.txt
 ## CLI usage
 
 After installation the `pdf-filler` console script is on `PATH`. You can also
-run the module directly via `python -m pdf_filler.cli`.
+run the module directly via `python -m pdf_filler`.
+
+All commands have **sensible defaults** pointing at the bundled Schengen
+template, fields config, and example client data — so the simplest invocation
+is just:
+
+```powershell
+python -m pdf_filler fill --output output/filled.pdf --overwrite
+```
 
 ### Fill a template
 
+Explicit form:
+
 ```powershell
-python -m pdf_filler.cli fill `
+python -m pdf_filler fill `
   --template templates/schengen/template.pdf `
-  --data examples/input_data.example.json `
-  --coordinates templates/schengen/coordinate_map.json `
+  --data examples/input_client.json `
+  --fields-config templates/schengen/fields_config.json `
   --metadata templates/schengen/template_metadata.json `
   --output output/filled_schengen.pdf
 ```
@@ -125,7 +137,7 @@ python -m pdf_filler.cli fill `
 Equivalent installed-script form:
 
 ```powershell
-pdf-filler fill --template ... --data ... --coordinates ... --output ...
+pdf-filler fill --template ... --data ... --fields-config ... --output ...
 ```
 
 Useful flags:
@@ -138,10 +150,13 @@ Useful flags:
 | `--overwrite`            | Overwrite an existing output file.                            |
 | `-v / --verbose`         | Enable debug logging.                                         |
 
+> `--coordinates` is accepted as an alias of `--fields-config` for
+> back-compatibility with older scripts.
+
 ### Inspect a template
 
 ```powershell
-python -m pdf_filler.cli inspect-template --template templates/schengen/template.pdf --page 1
+python -m pdf_filler inspect-template --template templates/schengen/template.pdf --page 1
 ```
 
 Prints page count, the geometry of the selected page (or all pages), and a
@@ -150,7 +165,7 @@ recap of the PyMuPDF coordinate system.
 ### Render a coordinate guide
 
 ```powershell
-python -m pdf_filler.cli make-coordinate-guide `
+python -m pdf_filler make-coordinate-guide `
   --template templates/schengen/template.pdf `
   --output output/page_guides/
 ```
@@ -161,23 +176,23 @@ image viewer to read the (x, y) for each field.
 
 Tunables: `--grid-step 25`, `--major-step 100`, `--zoom 2.0`.
 
-### Validate a coordinate map
+### Validate a fields config
 
 ```powershell
-python -m pdf_filler.cli validate-coordinate-map --coordinates templates/schengen/coordinate_map.json
+python -m pdf_filler validate-fields-config --fields-config templates/schengen/fields_config.json
 ```
 
-Loads the coordinate map and prints a JSON summary (field counts by type and
-page). Exits non-zero on validation errors and lists every problem.
+Loads the config and prints a JSON summary (field counts by type and page).
+Exits non-zero on validation errors and lists every problem.
 
 ### Hash a template
 
 ```powershell
 # Print the template's SHA-256:
-python -m pdf_filler.cli hash-template --template templates/schengen/template.pdf
+python -m pdf_filler hash-template --template templates/schengen/template.pdf
 
 # Or write it directly into the metadata file:
-python -m pdf_filler.cli hash-template `
+python -m pdf_filler hash-template `
   --template templates/schengen/template.pdf `
   --update-metadata templates/schengen/template_metadata.json
 ```
@@ -186,33 +201,34 @@ python -m pdf_filler.cli hash-template `
 
 ## JSON input data format
 
-The input data is a regular JSON object. Coordinate fields reference values
-inside it by **dotted paths** (`applicant.surname`, `travel.purpose.tourism`).
-There is no fixed schema — the coordinate map decides which paths matter.
+The input data is a **flat** JSON object — each key matches a `data_key` in
+the fields config. There is no fixed schema; the fields config decides which
+keys matter.
 
-See [`examples/input_data.example.json`](examples/input_data.example.json) for
-a complete Schengen sample.
+See [`examples/input_client.json`](examples/input_client.json) for a complete
+Schengen sample.
 
 ```json
 {
-  "applicant": {
-    "surname": "DOE",
-    "first_names": "JOHN MICHAEL",
-    "date_of_birth": "1990-04-21",
-    "sex": "male",
-    "home_address": "123 Example Street, Mumbai, Maharashtra, India"
-  },
-  "travel_document": {
-    "number": "X1234567",
-    "date_of_issue": "2023-01-01",
-    "valid_until": "2033-01-01"
-  },
-  "travel": {
-    "purpose": { "tourism": true, "business": false },
-    "main_destination": "France",
-    "arrival_date": "2026-03-10",
-    "departure_date": "2026-03-25"
-  }
+  "surname": "Al Rashidi",
+  "first_name": "Ahmed",
+  "date_of_birth": "15-03-1990",
+  "place_of_birth": "Dubai",
+  "country_of_birth": "UAE",
+  "current_nationality": "Emirati",
+  "sex": "Male",
+  "civil_status": "Married",
+  "passport_number": "A12345678",
+  "passport_issue_date": "01-01-2020",
+  "passport_valid_until": "01-01-2030",
+  "home_address": "Villa 12, Al Barsha, Dubai, UAE",
+  "email_address": "ahmed.alrashidi@email.com",
+  "telephone": "+971 50 123 4567",
+  "journey_purpose": "Tourism",
+  "main_destination": "France",
+  "number_of_entries": "Multiple entries",
+  "arrival_date": "01-06-2025",
+  "departure_date": "15-06-2025"
 }
 ```
 
@@ -222,86 +238,93 @@ is valid input for an option-checkbox compared against `false`).
 
 ---
 
-## JSON coordinate map format
+## JSON fields config format
 
 Top-level shape:
 
 ```json
 {
-  "template_id": "schengen_visa_application",
-  "template_version": "2026-11-14",
-  "page_size": "A4",
-  "coordinate_system": "pymupdf",
-  "units": "points",
+  "form_name": "Schengen Visa Application",
+  "pages": [
+    {"page_number": 1, "pdf_width": 595.32, "pdf_height": 841.92},
+    {"page_number": 2, "pdf_width": 595.32, "pdf_height": 841.92}
+  ],
   "fields": { ... }
 }
 ```
 
-Every entry under `fields` has a `type`, a `source` (dotted path), `page`
-(1-based), and `x`, `y` in PDF points.
+Every entry under `fields` has a `data_key` (the input-data key), `page`
+(1-based), and either `x` / `y` placement (most types) or an `options` map
+(for `checkbox_group`). The `type` key defaults to `"text"` and may be
+omitted for plain text fields.
 
 ### Field-type reference
 
-#### `text`
+#### `text` (default; `type` may be omitted)
 
 ```json
 {
-  "type": "text",
-  "source": "applicant.surname",
+  "data_key": "surname",
   "page": 1,
-  "x": 24, "y": 190,
+  "x": 155, "y": 174,
+  "width": 270,
+  "height": 12,
   "font": "helv",
-  "font_size": 10,
+  "font_size": 9,
   "align": "left",
-  "max_width": 550,
   "max_chars": 60,
   "overflow": "shrink",
   "min_font_size": 7,
   "color": [0, 0, 0],
-  "required": true
+  "required": true,
+  "description": "Field 1: Surname (Family name)"
 }
 ```
+
+`width` is the visual bounding-box width; `height` is informational
+(the engine adds vertical headroom internally so glyphs always render).
 
 #### `multiline_text`
 
 ```json
 {
   "type": "multiline_text",
-  "source": "applicant.home_address",
+  "data_key": "home_address",
   "page": 2,
   "x": 24, "y": 325,
+  "width": 420,
   "font_size": 9,
-  "max_width": 420,
   "line_height": 11,
   "max_lines": 5,
-  "overflow": "error",
+  "overflow": "shrink",
   "required": true
 }
 ```
 
-`max_width` and `line_height` are required.
+`width` is required; `line_height` defaults to `11`.
 
 #### `checkbox`
 
-Boolean checkbox (`checked_when` omitted):
+Standalone boolean checkbox (`checked_when` omitted):
 
 ```json
 {
   "type": "checkbox",
-  "source": "travel.purpose.tourism",
-  "page": 3,
+  "data_key": "agreed_to_terms",
+  "page": 1,
   "x": 27, "y": 200,
   "box_size": 8,
   "check_style": "x"
 }
 ```
 
-Option checkbox (`checked_when` matches the source value, case-insensitive):
+Option-matching checkbox (`checked_when` matches the data value,
+case-insensitive):
 
 ```json
 {
   "type": "checkbox",
-  "source": "applicant.sex",
+  "data_key": "sex",
   "page": 1,
   "x": 27, "y": 511,
   "box_size": 8,
@@ -312,27 +335,53 @@ Option checkbox (`checked_when` matches the source value, case-insensitive):
 
 `check_style` is one of: `"x"`, `"check"`, `"filled_square"`.
 
+#### `checkbox_group`
+
+A set of mutually-exclusive (or selectable) options sharing one `data_key`.
+The data value (or list of values) is matched case-insensitively against the
+keys of `options`; matching boxes are checked.
+
+```json
+{
+  "type": "checkbox_group",
+  "data_key": "civil_status",
+  "page": 1,
+  "description": "Field 9: Civil status",
+  "options": {
+    "Single":   {"x": 209, "y": 410},
+    "Married":  {"x": 271, "y": 410},
+    "Divorced": {"x": 272, "y": 432}
+  },
+  "box_size": 8,
+  "check_style": "x"
+}
+```
+
+Pass a list (e.g. `["Tourism", "Business"]`) to tick more than one option.
+
 #### `date`
 
 ```json
 {
   "type": "date",
-  "source": "applicant.date_of_birth",
+  "data_key": "date_of_birth",
   "page": 1,
   "x": 24, "y": 360,
   "format": "%d-%m-%Y",
-  "max_width": 180,
-  "overflow": "error",
+  "width": 180,
+  "overflow": "shrink",
   "required": true
 }
 ```
 
-`format` is a Python `strftime` string.
+`format` is a Python `strftime` string. Strings already in the desired output
+format (e.g. `"15-03-1990"`) are passed through verbatim, so you don't have
+to convert input dates ahead of time.
 
 #### `signature_text`
 
-Same options as `text`, with `overflow` defaulting to `shrink` and a larger
-default font size — handy for stamping a typed signature line.
+Same options as `text`, with a larger default font size — handy for stamping
+a typed signature line.
 
 #### `image` (placeholder)
 
@@ -355,20 +404,21 @@ Use `inspect-template` to confirm a specific template's per-page geometry.
 
 ---
 
-## How to create a coordinate map
+## How to create a fields config
 
 1. **Render a coordinate guide.**
    ```powershell
-   python -m pdf_filler.cli make-coordinate-guide --template templates/schengen/template.pdf --output output/page_guides/
+   python -m pdf_filler make-coordinate-guide --template templates/schengen/template.pdf --output output/page_guides/
    ```
 2. **Open the PNG** (`output/page_guides/page_01_guide.png` etc.) in any
    image viewer. The grid has labelled major lines.
 3. **Locate each field visually** and read its top-left (x, y) off the grid.
-4. **Add the entry to `coordinate_map.json`** with the right `type`, `page`,
-   `x`, `y`, plus type-specific options (font size, max width, etc.).
+4. **Add the entry to `fields_config.json`** with the appropriate `data_key`,
+   `page`, `x`, `y`, plus type-specific options (font size, width, etc.). For
+   plain text fields you can omit `type` entirely.
 5. **Run `fill`** with sample data:
    ```powershell
-   python -m pdf_filler.cli fill --template ... --data examples/input_data.example.json --coordinates templates/schengen/coordinate_map.json --output output/test.pdf --overwrite
+   python -m pdf_filler fill --output output/test.pdf --overwrite
    ```
 6. **Open the output PDF** and check positioning.
 7. **Nudge** if needed:
@@ -378,17 +428,18 @@ Use `inspect-template` to confirm a specific template's per-page geometry.
    - decrease `y` to move text up
 8. For checkboxes, pick (x, y) at the **top-left of the printed box**. The
    stamp is drawn inside an `box_size` × `box_size` square anchored there.
-9. Once aligned, **commit the coordinate map together with the template
+9. Once aligned, **commit the fields config together with the template
    version** so they evolve in lockstep.
 
 ### Debug boxes
 
 Pass `--debug-boxes` to draw a faint red outline around every field's target
-area. Open the resulting PDF to verify that text rectangles and checkbox
-target squares land where you expect.
+area (including each option box of a `checkbox_group`). Open the resulting
+PDF to verify that text rectangles and checkbox target squares land where you
+expect.
 
 ```powershell
-python -m pdf_filler.cli fill --template ... --data ... --coordinates ... --output output/debug.pdf --overwrite --debug-boxes
+python -m pdf_filler fill --output output/debug.pdf --overwrite --debug-boxes
 ```
 
 ---
@@ -399,21 +450,23 @@ python -m pdf_filler.cli fill --template ... --data ... --coordinates ... --outp
 from pathlib import Path
 
 from pdf_filler import PdfFiller
-from pdf_filler.coordinates import load_coordinate_map
+from pdf_filler.coordinates import load_fields_config
 from pdf_filler.validators import load_template_metadata, validate_input_data
 
 template = Path("templates/schengen/template.pdf")
-coord_map = load_coordinate_map(Path("templates/schengen/coordinate_map.json"))
+config = load_fields_config(Path("templates/schengen/fields_config.json"))
 metadata = load_template_metadata(Path("templates/schengen/template_metadata.json"))
-data = validate_input_data(Path("examples/input_data.example.json"))
+data = validate_input_data(Path("examples/input_client.json"))
 
-filler = PdfFiller(template, coord_map, metadata=metadata)
+filler = PdfFiller(template, config, metadata=metadata)
 result = filler.fill(data, Path("output/filled.pdf"), overwrite=True)
 print(result.fields_written, result.fields_skipped)
 ```
 
 The Pydantic models, exceptions, and engine are also re-exported from the
-package root.
+package root. `CoordinateMap` is kept as an alias of `FieldsConfig`, and
+`load_coordinate_map` / `summarise_coordinate_map` are kept as aliases of the
+`*_fields_config` functions, for back-compat.
 
 ---
 
@@ -424,11 +477,10 @@ package root.
   whenever you adopt a new official version, then check the metadata into
   source control. Filling will refuse to run against a different template
   unless `--ignore-template-hash` is passed.
-- **Version your coordinate maps** alongside the template version
-  (`template_version` field) — embassies *do* re-issue forms.
-- **Validate input data** at the application boundary (the supplied Pydantic
-  models give you a head start; the engine itself only reads the dotted
-  paths it needs).
+- **Version your fields config** alongside the template — embassies *do*
+  re-issue forms.
+- **Validate input data** at the application boundary. The engine itself
+  reads keys defensively (missing → skipped if optional, error if required).
 - **Flatten output by stamping content directly.** That's already how this
   package works — values are part of the page content stream, not editable
   form fields.

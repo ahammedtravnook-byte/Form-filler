@@ -1,0 +1,18 @@
+"""Health check route."""
+
+from __future__ import annotations
+
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+router = APIRouter(tags=["Health"])
+
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
+
+
+@router.get("/health", response_model=HealthResponse, summary="Health check")
+def health() -> HealthResponse:
+    return HealthResponse(status="ok", version="1.0.0")
