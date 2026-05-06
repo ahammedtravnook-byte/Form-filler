@@ -134,6 +134,7 @@ class PdfFiller:
                 out_doc.insert_pdf(src_doc)
 
                 for name, fcfg in self.fields_config.fields.items():
+                    print(type(fcfg))
                     self._render_field(out_doc, name, fcfg, data, result, debug_boxes)
 
                 out_doc.save(
@@ -465,40 +466,33 @@ class PdfFiller:
 
     @staticmethod
     def _draw_check_mark(
-        page: fitz.Page,
-        *,
-        x: float,
-        y: float,
-        size: float,
-        style: str,
-        color: tuple[float, float, float],
-        line_width: float,
-    ) -> None:
+    page: fitz.Page,
+    *,
+    x: float,
+    y: float,
+    size: float,
+    style: str,
+    color: tuple[float, float, float],
+    line_width: float,
+) -> None:
         x0, y0 = x, y
         x1, y1 = x0 + size, y0 + size
         rect = fitz.Rect(x0, y0, x1, y1)
-
+        
         if style == "filled_square":
             page.draw_rect(rect, color=color, fill=color, width=line_width, overlay=True)
         elif style == "x":
-            page.draw_line(fitz.Point(x0, y0), fitz.Point(x1, y1),
-                           color=color, width=line_width, overlay=True)
-            page.draw_line(fitz.Point(x1, y0), fitz.Point(x0, y1),
-                           color=color, width=line_width, overlay=True)
+            page.draw_line(fitz.Point(x0, y0), fitz.Point(x1, y1), color=color, width=line_width, overlay=True)
+            page.draw_line(fitz.Point(x1, y0), fitz.Point(x0, y1), color=color, width=line_width, overlay=True)
         elif style == "check":
-            mid_x = x0 + size * 0.4
-            mid_y = y0 + size * 0.75
-            page.draw_line(
-                fitz.Point(x0 + size * 0.1, y0 + size * 0.5),
-                fitz.Point(mid_x, mid_y),
-                color=color, width=line_width, overlay=True,
-            )
-            page.draw_line(
-                fitz.Point(mid_x, mid_y),
-                fitz.Point(x0 + size * 0.95, y0 + size * 0.15),
-                color=color, width=line_width, overlay=True,
-            )
-
+            # Draw a ✓ shape with two line segments: short left stroke + long right stroke.
+            # Proportions are relative to the box so it scales with any size.
+            p1 = fitz.Point(x0 + size * 0.14, y0 + size * 0.67)  # left tip
+            p2 = fitz.Point(x0 + size * 0.27, y0 + size * 1.00)  # bottom valley
+            p3 = fitz.Point(x0 + size * 1.00, y0 + size * 0.00)  # right tip
+            page.draw_line(p1, p2, color=color, width=line_width, overlay=True)
+            page.draw_line(p2, p3, color=color, width=line_width, overlay=True)
+   
     @staticmethod
     def _truncate_chars(text: str, max_chars: int | None) -> str:
         if max_chars is None or len(text) <= max_chars:

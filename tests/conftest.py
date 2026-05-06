@@ -98,7 +98,7 @@ def small_fields_config() -> dict[str, Any]:
                 "y": 300,
                 "box_size": 8,
                 "checked_when": "male",
-                "check_style": "x",
+                "check_style": "check",
                 "required": False,
             },
             "is_student": {

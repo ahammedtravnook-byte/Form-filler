@@ -120,7 +120,7 @@ class CheckboxFieldConfig(_PlacedField):
     type: Literal["checkbox"] = "checkbox"
     box_size: PositiveFloat = 8.0
     checked_when: str | int | float | bool | None = None
-    check_style: CheckStyle = "x"
+    check_style: CheckStyle = "check"
     line_width: PositiveFloat = 1.2
     color: tuple[float, float, float] = (0.0, 0.0, 0.0)
 
@@ -145,7 +145,7 @@ class CheckboxGroupFieldConfig(_BaseField):
     type: Literal["checkbox_group"] = "checkbox_group"
     options: dict[str, CheckboxOption] = Field(..., min_length=1)
     box_size: PositiveFloat = 8.0
-    check_style: CheckStyle = "x"
+    check_style: CheckStyle = "check"
     line_width: PositiveFloat = 1.2
     color: tuple[float, float, float] = (0.0, 0.0, 0.0)
 
