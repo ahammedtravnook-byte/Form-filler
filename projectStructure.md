@@ -354,7 +354,6 @@ Open:
 http://localhost:8000/docs
 ```
 
----
 
 ## CLI Usage
 

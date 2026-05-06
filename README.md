@@ -107,6 +107,20 @@ pip install -r requirements.txt
 ```
 
 ---
+## Quick Start
+
+```bash
+pip install -e .
+uvicorn api.main:app --reload
+```
+
+Open:
+
+```txt
+http://localhost:8000/docs
+```
+
+---
 
 ## CLI usage
 
