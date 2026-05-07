@@ -32,6 +32,8 @@ _log = get_logger("api.document_service")
 # Maps session_id → ExtractionResult dict (raw, as returned by /process).
 # Overwritten by /verify with the user-edited version.
 _sessions: dict[str, dict[str, Any]] = {}
+# Session IDs that have been verified — further /verify calls are rejected.
+_verified: set[str] = set()
 
 
 async def process_documents(
@@ -99,15 +101,25 @@ async def process_documents(
 
 
 async def update_session(session_id: str, verified_data: dict[str, Any]) -> dict[str, Any]:
-    """Overwrite the session with user-edited data. Returns the stored data."""
+    """Overwrite the session with user-edited data. Returns the stored data.
+
+    Raises 404 if the session does not exist, 409 if it has already been verified.
+    """
+    from fastapi import HTTPException
+
     if session_id not in _sessions:
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=404,
             detail=f"Session '{session_id}' not found or expired. Re-upload documents.",
         )
+    if session_id in _verified:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Session '{session_id}' has already been verified and cannot be updated.",
+        )
     _sessions[session_id] = verified_data
-    _log.info("Session %s updated by reviewer.", session_id)
+    _verified.add(session_id)
+    _log.info("Session %s verified and locked.", session_id)
     return verified_data
 
 
