@@ -12,7 +12,7 @@ POST /api/v1/documents/fill  (future)
 
 from __future__ import annotations
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 
 from api.schemas.documents import ProcessDocumentsResponse, VerifyRequest, VerifyResponse
 from api.services import document_service
@@ -24,11 +24,12 @@ _MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB per file
 
 @router.post("/process", response_model=ProcessDocumentsResponse)
 async def process_documents(
+    template_id: str = Form(..., description="Template ID (must exist under templates/)"),
     emirates_id_file: UploadFile = File(..., description="Emirates ID PDF"),
     passport_file: UploadFile = File(..., description="Passport PDF"),
     qa_document_file: UploadFile = File(..., description="Q&A document (.docx)"),
 ) -> ProcessDocumentsResponse:
-    """Extract raw data from uploaded documents and return it for review."""
+    """Extract raw data from uploaded documents, map fields via AI, and return client_json."""
     _validate_upload(emirates_id_file, expected_suffix=".pdf", label="emirates_id_file")
     _validate_upload(passport_file, expected_suffix=".pdf", label="passport_file")
     _validate_upload(qa_document_file, expected_suffix=".docx", label="qa_document_file")
@@ -37,6 +38,7 @@ async def process_documents(
         emirates_id_bytes=await _read_upload(emirates_id_file),
         passport_bytes=await _read_upload(passport_file),
         qa_bytes=await _read_upload(qa_document_file),
+        template_id=template_id,
     )
 
 

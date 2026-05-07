@@ -22,6 +22,16 @@ class Settings(BaseSettings):
         description="Bearer token required for all /admin routes.",
     )
 
+    # OpenAI
+    openai_api_key: str = Field(
+        default="",
+        description="OpenAI API key used for the AI field-mapping step in /process.",
+    )
+    openai_model: str = Field(
+        default="gpt-4o-mini",
+        description="OpenAI model to use for field mapping.",
+    )
+
     # Storage
     templates_dir: Path = Field(
         default=Path("templates"),

@@ -18,6 +18,10 @@ class ProcessDocumentsResponse(BaseModel):
     session_id: str
     extracted_data: dict[str, Any]
     validation_warnings: list[ValidationWarningSchema]
+    client_json: dict[str, Any] = Field(
+        default_factory=dict,
+        description="AI-mapped fields: keys from fields_config, values from extracted data.",
+    )
 
 
 class VerifyRequest(BaseModel):

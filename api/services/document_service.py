@@ -19,8 +19,13 @@ from __future__ import annotations
 import uuid
 from typing import Any
 
+from fastapi import HTTPException
+
+from api.core.config import settings
 from api.core.logging import get_logger
 from api.schemas.documents import ProcessDocumentsResponse, ValidationWarningSchema
+from api.services import ai_mapping_service
+from api.services.storage_service import load_raw_map, require_template
 from document_pipeline.cross_validator import cross_validate
 from document_pipeline.emirates_id import extract_emirates_id
 from document_pipeline.models import ExtractionResult
@@ -40,12 +45,18 @@ async def process_documents(
     emirates_id_bytes: bytes,
     passport_bytes: bytes,
     qa_bytes: bytes,
+    template_id: str,
 ) -> ProcessDocumentsResponse:
-    """Extract fields from the three source documents and return raw model data.
+    """Extract fields from the three source documents, map them onto the
+    template's fields_config via AI, and return raw + mapped data.
 
     Extraction errors are non-fatal — partial results plus error list are
     returned so the reviewer can fill in missing fields manually.
     """
+    # --- Load template fields_config (raises 404 if missing) ---
+    require_template(settings.templates_dir, template_id)
+    fields_config = load_raw_map(settings.templates_dir, template_id)
+
     result = ExtractionResult()
 
     # --- Passport ---
@@ -88,15 +99,25 @@ async def process_documents(
         for w in cross_validate(result)
     )
 
+    extracted_dump = result.model_dump()
+
+    # --- AI field mapping ---
+    client_json = await ai_mapping_service.map_fields(
+        extracted_data=extracted_dump,
+        fields_config=fields_config,
+    )
+    _log.info("AI mapping produced %d fields for template '%s'.", len(client_json), template_id)
+
     # --- Store raw extraction in session ---
     session_id = str(uuid.uuid4())
-    _sessions[session_id] = result.model_dump()
+    _sessions[session_id] = extracted_dump
     _log.info("Session %s created.", session_id)
 
     return ProcessDocumentsResponse(
         session_id=session_id,
-        extracted_data=result.model_dump(),
+        extracted_data=extracted_dump,
         validation_warnings=warnings,
+        client_json=client_json,
     )
 
 
