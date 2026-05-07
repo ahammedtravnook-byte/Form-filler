@@ -1,28 +1,24 @@
-"""PDF → image → OCR text extraction.
+"""PDF -> image -> OCR text extraction (Tesseract only).
 
-Uses PyMuPDF to render PDF pages to images, then RapidOCR for recognition.
-RapidOCR (rapidocr-onnxruntime) is pure Python with pre-built ONNX wheels —
-no system binaries, no Rust compiler, no MSVC linker required.
+Uses PyMuPDF to render PDF pages to images, then Tesseract (via pytesseract)
+for recognition. Tesseract is the single OCR backend across the pipeline so
+there are no extra ML runtimes (no ONNX, no Torch, no Rust toolchains).
 
-Install: pip install rapidocr-onnxruntime
-
-Arabic note: RapidOCR ships English + Chinese models out of the box.
-For Arabic text on Emirates IDs (the Arabic name on the reverse side),
-it will produce garbage — that field is treated as optional. The English
-side of the Emirates ID (ID number, DOB, expiry, nationality) is reliably
-extracted in English-only mode.
+Install Tesseract: https://github.com/UB-Mannheim/tesseract/wiki
+For Arabic on the back of an Emirates ID, install the Arabic language data
+("ara") via the Tesseract installer or `tesseract --list-langs` to verify.
 """
 
 from __future__ import annotations
 
 import io
-from functools import lru_cache
+import os
 
 import fitz  # PyMuPDF
-import numpy as np
 from PIL import Image, ImageEnhance, ImageOps
 
 _RENDER_DPI = 300
+_DEFAULT_TESSERACT_PATH = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 def pdf_page_to_pil(pdf_bytes: bytes, page_index: int = 0, dpi: int = _RENDER_DPI) -> Image.Image:
@@ -45,46 +41,63 @@ def _preprocess(img: Image.Image) -> Image.Image:
     return ImageEnhance.Contrast(grey).enhance(1.5)
 
 
-@lru_cache(maxsize=1)
-def _get_rapidocr() -> object:
-    """Return a cached RapidOCR instance. Loaded once per process."""
+def _import_pytesseract():  # type: ignore[no-untyped-def]
     try:
-        from rapidocr_onnxruntime import RapidOCR  # type: ignore[import-untyped]
+        import pytesseract
     except ImportError as exc:
         raise ImportError(
-            "rapidocr-onnxruntime is not installed. "
-            "Run: pip install rapidocr-onnxruntime"
+            "pytesseract is not installed. Run: pip install pytesseract\n"
+            "Also ensure the Tesseract binary is installed: "
+            "https://github.com/UB-Mannheim/tesseract/wiki"
         ) from exc
-    return RapidOCR()
+
+    custom_path = os.environ.get("TESSERACT_CMD")
+    if custom_path and os.path.exists(custom_path):
+        pytesseract.pytesseract.tesseract_cmd = custom_path
+    elif os.name == "nt" and os.path.exists(_DEFAULT_TESSERACT_PATH):
+        pytesseract.pytesseract.tesseract_cmd = _DEFAULT_TESSERACT_PATH
+    return pytesseract
 
 
-def ocr_image(img: Image.Image) -> str:
-    """Run RapidOCR on a PIL Image and return the full text as a single string.
+def _langs_to_tesseract(langs: tuple[str, ...]) -> str:
+    """Map the pipeline's lang codes to Tesseract's traineddata names."""
+    mapping = {"en": "eng", "ar": "ara", "eng": "eng", "ara": "ara"}
+    resolved = [mapping.get(lang, lang) for lang in langs] or ["eng"]
+    return "+".join(dict.fromkeys(resolved))
 
-    Results are sorted top-to-bottom by the y-coordinate of their bounding box
-    so the output reads in natural reading order.
+
+def ocr_image(
+    img: Image.Image,
+    langs: tuple[str, ...] = ("en",),
+    psms: tuple[int, ...] = (6,),
+) -> str:
+    """Run Tesseract on a PIL Image and return the extracted text.
+
+    `psms` accepts multiple page-segmentation modes; the outputs are concatenated.
+    PSM 6 (uniform block) is the default. ID-card layouts with sparse fields
+    benefit from also running PSM 11 (sparse text), which catches small fields
+    like "Sex: F" that PSM 6 silently drops.
     """
-    engine = _get_rapidocr()
-    arr = np.array(_preprocess(img))
-    result, _ = engine(arr)  # type: ignore[operator]
-
-    if not result:
-        return ""
-
-    # Each item: [[x1,y1],[x2,y2],[x3,y3],[x4,y4]], text, confidence
-    # Sort by top-left y coordinate for reading order
-    sorted_results = sorted(result, key=lambda r: r[0][0][1])
-    return "\n".join(text for (_bbox, text, _conf) in sorted_results if text.strip())
+    pytesseract = _import_pytesseract()
+    prepped = _preprocess(img)
+    lang = _langs_to_tesseract(langs)
+    parts: list[str] = []
+    for psm in psms:
+        config = f"--oem 3 --psm {psm}"
+        parts.append(pytesseract.image_to_string(prepped, lang=lang, config=config))
+    return "\n".join(parts)
 
 
-def extract_text_from_pdf(pdf_bytes: bytes, langs: tuple[str, ...] = ("en",)) -> str:
+def extract_text_from_pdf(
+    pdf_bytes: bytes,
+    langs: tuple[str, ...] = ("en",),
+    psms: tuple[int, ...] = (6,),
+) -> str:
     """Extract text from every page of a PDF.
 
     Tries PyMuPDF direct text extraction first (fast, lossless for digital PDFs).
-    Falls back to RapidOCR for pages with no selectable text layer (scanned images).
-
-    The `langs` parameter is accepted for API compatibility but RapidOCR's bundled
-    models cover English (and Chinese) regardless of what is passed.
+    Falls back to Tesseract for pages with no usable text layer (scanned images).
+    `psms` is forwarded to `ocr_image` for the OCR fallback path.
     """
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     pages_text: list[str] = []
@@ -92,15 +105,13 @@ def extract_text_from_pdf(pdf_bytes: bytes, langs: tuple[str, ...] = ("en",)) ->
     for page in doc:
         direct_text = page.get_text("text").strip()
         if len(direct_text) > 20:
-            # Digital PDF — use text layer directly
             pages_text.append(direct_text)
         else:
-            # Scanned page — render at 300 DPI and OCR
             scale = _RENDER_DPI / 72.0
             mat = fitz.Matrix(scale, scale)
             pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB, alpha=False)
             img = Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGB")
-            pages_text.append(ocr_image(img))
+            pages_text.append(ocr_image(img, langs=langs, psms=psms))
 
     return "\n\n".join(pages_text)
 

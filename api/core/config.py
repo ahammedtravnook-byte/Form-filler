@@ -55,6 +55,10 @@ class Settings(BaseSettings):
         default=False,
         description="Skip SHA-256 hash check when filling.",
     )
+    mrz_debug: bool = Field(
+        default=False,
+        description="Enable MRZ OCR debug output (prints all OCR attempts).",
+    )
 
     @field_validator("templates_dir", mode="before")
     @classmethod

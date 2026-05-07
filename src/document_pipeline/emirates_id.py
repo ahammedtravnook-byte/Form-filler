@@ -1,8 +1,12 @@
-"""Emirates ID field extraction via OCR + regex.
+"""Emirates ID field extraction via Tesseract OCR + regex.
 
 Emirates IDs are scanned PNG images inside a PDF. We render the PDF,
-OCR it with EasyOCR (English + Arabic), then apply regex patterns to pull
-structured fields from the OCR output.
+OCR it with Tesseract (English + Arabic via the "ara" traineddata),
+then apply regex patterns to pull structured fields from the OCR output.
+
+The Arabic-name field requires the Tesseract Arabic language pack. Install
+it via the UB-Mannheim installer or by dropping `ara.traineddata` into the
+Tesseract `tessdata` directory.
 
 Field layout on the English side of an Emirates ID card:
   - ID Number  : 784-YYYY-XXXXXXX-X
@@ -28,16 +32,14 @@ from document_pipeline.ocr import extract_text_from_pdf
 # --- Regex patterns (tune these against real OCR output) ---
 
 _RE_ID_NUMBER = re.compile(r"\b784[-\s]?\d{4}[-\s]?\d{7}[-\s]?\d\b")
-# print(_RE_ID_NUMBER)
 
 _RE_NAME = re.compile(
-    r"(?:Name|Full\s*Name)\s*[:\-]?\s*([A-Z][A-Za-z\s\-'\.]+)",
+    r"(?:Name|Full\s*Name)\s*[:\-]?\s*([A-Z][A-Za-z\-'\. ]+?)\s*(?:\n|$)",
     re.IGNORECASE,
 )
-# print(_RE_NAME)
 
 _RE_NATIONALITY = re.compile(
-    r"Nationality\s*[:\-]?\s*([A-Za-z][A-Za-z\s]+)",
+    r"Nationality\s*[:\-]?\s*([A-Za-z][A-Za-z\s\-]+?)\s*(?:\n|$)",
     re.IGNORECASE,
 )
 
@@ -101,7 +103,9 @@ def extract_emirates_id(pdf_bytes: bytes) -> tuple[EmiratesIdData, list[str]]:
 
     Returns (data, errors). Errors are non-fatal field-extraction failures.
     """
-    text = extract_text_from_pdf(pdf_bytes, langs=("en", "ar"))
+    # PSM 6 (uniform block) reads the bulk of the card; PSM 11 (sparse text)
+    # catches small isolated fields like "Sex: F" that PSM 6 silently drops.
+    text = extract_text_from_pdf(pdf_bytes, langs=("en", "ar"), psms=(6, 11))
     return parse_emirates_id_text(text)
 
 
@@ -119,12 +123,26 @@ def parse_emirates_id_text(text: str) -> tuple[EmiratesIdData, list[str]]:
     dob = _safe_extract_date(
         [_RE_DOB_AFTER, _RE_DOB_NEXT_LINE, _RE_DOB_BEFORE], text, "Date of Birth", errors
     )
+    # Try labelled patterns first; suppress per-pattern errors so we can fall
+    # back to positional date recovery without polluting the error list.
+    label_errors: list[str] = []
     issue_date = _safe_extract_date(
-        [_RE_ISSUE_AFTER, _RE_ISSUE_NEXT_LINE, _RE_ISSUE_BEFORE], text, "Issue Date", errors
+        [_RE_ISSUE_AFTER, _RE_ISSUE_NEXT_LINE, _RE_ISSUE_BEFORE], text, "Issue Date", label_errors
     )
     expiry = _safe_extract_date(
-        [_RE_EXPIRY_AFTER, _RE_EXPIRY_NEXT_LINE, _RE_EXPIRY_SKIP], text, "Expiry Date", errors
+        [_RE_EXPIRY_AFTER, _RE_EXPIRY_NEXT_LINE, _RE_EXPIRY_SKIP], text, "Expiry Date", label_errors
     )
+
+    # Fallback: when OCR mangled the labels, recover issue/expiry by position.
+    # Find all dates in the text, drop the DOB, then take earliest=issue,
+    # latest=expiry. UAE EIDs always show issue (past) and expiry (future).
+    if issue_date is None or not expiry:
+        issue_date, expiry = _fallback_dates(text, dob, issue_date, expiry)
+
+    if issue_date is None:
+        errors.append("Could not extract 'Issue Date' from Emirates ID OCR output.")
+    if not expiry:
+        errors.append("Could not extract 'Expiry Date' from Emirates ID OCR output.")
     gender = _extract_gender(text)
     full_name_ar = _extract_arabic_name(text)
 
@@ -157,9 +175,8 @@ def _extract_name(text: str) -> str:
     m = _RE_NAME.search(text)
     if not m:
         raise ValueError("Could not extract name from Emirates ID OCR output.")
-    name = m.group(1).strip()
-    # Strip trailing noise: cut at first line that looks non-name
-    name = name.split("\n")[0].strip()
+    name = m.group(1).split("\n")[0].strip()
+    name = _strip_trailing_noise(name)
     return _title_case_name(name)
 
 
@@ -167,7 +184,23 @@ def _extract_nationality(text: str) -> str:
     m = _RE_NATIONALITY.search(text)
     if not m:
         return ""
-    return m.group(1).split("\n")[0].strip().title()
+    raw = m.group(1).split("\n")[0].strip()
+    # Drop OCR bleed-through (e.g. "TURKEY OE SRS A" -> "TURKEY").
+    cleaned = _strip_trailing_noise(raw)
+    return cleaned.title()
+
+
+def _strip_trailing_noise(value: str) -> str:
+    """Remove short trailing tokens that look like OCR bleed from adjacent Arabic text.
+
+    Tesseract often reads stray Arabic glyphs as 1-3 letter capitalised tokens
+    after a real value. We iteratively trim them off the end while leaving the
+    real word intact (which is typically >=4 chars).
+    """
+    parts = value.split()
+    while len(parts) > 1 and len(parts[-1]) <= 3:
+        parts.pop()
+    return " ".join(parts)
 
 
 def _safe_extract(fn: object, text: str, errors: list[str]) -> str | None:
@@ -201,6 +234,47 @@ def _safe_extract_date(
                 return None
     errors.append(f"Could not extract '{label}' from Emirates ID OCR output.")
     return None
+
+
+_RE_ANY_DATE = re.compile(r"\b(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\b")
+
+
+def _fallback_dates(
+    text: str,
+    dob: str | None,
+    issue_date: str | None,
+    expiry: str | None,
+) -> tuple[str | None, str | None]:
+    """Recover issue/expiry by picking the earliest/latest date that isn't DOB.
+
+    Used when label-anchored patterns failed (typical when Arabic noise corrupts
+    the labels). UAE EIDs reliably show DOB, issue, and expiry dates — three
+    distinct values — so positional ordering is well-defined.
+    """
+    iso_dates: list[str] = []
+    for m in _RE_ANY_DATE.finditer(text):
+        try:
+            iso = date_parser.parse(m.group(1), dayfirst=True).strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            continue
+        if iso != dob and iso not in iso_dates:
+            iso_dates.append(iso)
+
+    if not iso_dates:
+        return issue_date, expiry
+
+    iso_dates.sort()
+    if issue_date is None:
+        issue_date = iso_dates[0]
+    if not expiry and len(iso_dates) >= 2:
+        expiry = iso_dates[-1]
+    elif not expiry:
+        # Only one non-DOB date — assume it's the expiry (issue is sometimes
+        # absent on older cards but expiry is always printed).
+        expiry = iso_dates[0]
+        if issue_date == expiry:
+            issue_date = None
+    return issue_date, expiry
 
 
 def _extract_gender(text: str) -> str:
