@@ -14,12 +14,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter, File, Form, UploadFile
 
+from api.core.config import settings
 from api.schemas.documents import ProcessDocumentsResponse, VerifyRequest, VerifyResponse
 from api.services import document_service
 
 router = APIRouter(prefix="/documents", tags=["documents"])
-
-_MAX_UPLOAD_BYTES = 20 * 1024 * 1024  # 20 MB per file
 
 
 @router.post("/process", response_model=ProcessDocumentsResponse)
@@ -72,11 +71,12 @@ async def _read_upload(upload: UploadFile) -> bytes:
     from fastapi import HTTPException
 
     data = await upload.read()
-    if len(data) > _MAX_UPLOAD_BYTES:
+    if len(data) > settings.max_upload_bytes:
+        limit_mb = settings.max_upload_bytes // 1024 // 1024
         raise HTTPException(
             status_code=413,
             detail=(
-                f"File '{upload.filename}' exceeds the 20 MB limit "
+                f"File '{upload.filename}' exceeds the {limit_mb} MB limit "
                 f"({len(data) // 1024 // 1024} MB uploaded)."
             ),
         )

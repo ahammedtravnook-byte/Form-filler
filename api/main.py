@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Tighten in production via env/config
+        allow_origins=settings.cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],
         expose_headers=["X-Request-ID", "X-Fields-Written", "X-Fields-Skipped", "X-Warnings"],

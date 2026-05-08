@@ -38,6 +38,12 @@ class Settings(BaseSettings):
         description="Root directory where template folders live.",
     )
 
+    # CORS — comma-separated list of allowed origins; "*" permits all
+    cors_origins: list[str] = Field(
+        default=["*"],
+        description="Allowed CORS origins. Override in production (e.g. https://yourapp.com).",
+    )
+
     # Runtime behaviour
     log_level: str = Field(default="INFO")
     log_json: bool = Field(
