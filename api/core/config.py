@@ -22,10 +22,26 @@ class Settings(BaseSettings):
         description="Bearer token required for all /admin routes.",
     )
 
+    # OpenAI
+    openai_api_key: str = Field(
+        default="",
+        description="OpenAI API key used for the AI field-mapping step in /process.",
+    )
+    openai_model: str = Field(
+        default="gpt-4o-mini",
+        description="OpenAI model to use for field mapping.",
+    )
+
     # Storage
     templates_dir: Path = Field(
         default=Path("templates"),
         description="Root directory where template folders live.",
+    )
+
+    # CORS — comma-separated list of allowed origins; "*" permits all
+    cors_origins: list[str] = Field(
+        default=["*"],
+        description="Allowed CORS origins. Override in production (e.g. https://yourapp.com).",
     )
 
     # Runtime behaviour
@@ -54,6 +70,10 @@ class Settings(BaseSettings):
     ignore_template_hash: bool = Field(
         default=False,
         description="Skip SHA-256 hash check when filling.",
+    )
+    mrz_debug: bool = Field(
+        default=False,
+        description="Enable MRZ OCR debug output (prints all OCR attempts).",
     )
 
     @field_validator("templates_dir", mode="before")

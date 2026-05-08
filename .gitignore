@@ -72,6 +72,15 @@ output/*
 !output/.gitkeep
 output/page_guides/
 
+# Never commit PDFs (inputs/outputs generated locally). Keep the actual templates.
+*.pdf
+**/*.pdf
+!templates/**/template.pdf
+!templates/**/.gitkeep
+examples/*.pdf
+examples/**/*.pdf
+
+
 # Don't commit local secret data files
 examples/input_data.local*.json
 *.local.json

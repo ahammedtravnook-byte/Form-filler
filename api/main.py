@@ -12,7 +12,7 @@ from api.core.config import settings
 from api.core.logging import configure_logging, get_logger
 from api.middleware.error_handler import ErrorHandlerMiddleware
 from api.middleware.request_id import RequestIdMiddleware
-from api.routes import admin_templates, health, submissions, templates
+from api.routes import admin_templates, documents, health, submissions, templates
 
 _log = get_logger("api.main")
 
@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestIdMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Tighten in production via env/config
+        allow_origins=settings.cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],
         expose_headers=["X-Request-ID", "X-Fields-Written", "X-Fields-Skipped", "X-Warnings"],
@@ -61,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(templates.router, prefix="/api/v1")
     app.include_router(submissions.router, prefix="/api/v1")
     app.include_router(admin_templates.router, prefix="/api/v1")
+    app.include_router(documents.router, prefix="/api/v1")
 
     return app
 

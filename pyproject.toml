@@ -37,6 +37,12 @@ api = [
     "openpyxl>=3.1",
     "python-dateutil>=2.9",
 ]
+pipeline = [
+    "pytesseract>=0.3.10",
+    "python-docx>=1.1",
+    "Pillow>=10.0",
+    "thefuzz>=0.22",
+]
 dev = [
     "pytest>=8.0",
     "ruff>=0.5",
@@ -61,6 +67,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 pdf_filler = ["py.typed"]
+document_pipeline = ["py.typed"]
 
 [tool.ruff]
 line-length = 100
