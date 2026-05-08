@@ -115,8 +115,8 @@ async def process_documents(
 
     return ProcessDocumentsResponse(
         session_id=session_id,
-        extracted_data=extracted_dump,
-        validation_warnings=warnings,
+        # extracted_data=extracted_dump,
+        # validation_warnings=warnings,
         client_json=client_json,
     )
 
