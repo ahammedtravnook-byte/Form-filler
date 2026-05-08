@@ -838,28 +838,3 @@ pre-commit run --all-files
 
 ---
 
-## Future Roadmap
-
-- [ ] Redis session backend (multi-worker deployment)
-- [ ] OCR-based automatic field discovery (no manual coordinate entry)
-- [ ] Image/photo placement in PDFs
-- [ ] Database-backed template versioning
-- [ ] Batch job monitoring UI
-- [ ] Admin dashboard for template management
-- [ ] Email delivery of filled PDFs
-- [ ] Webhook notifications on completion
-
----
-
-## Support
-
-For issues, feature requests, or questions:
-- Check **Troubleshooting** section above
-- Review **API Docs**: http://localhost:8000/docs
-- Check **server logs**: `sudo journalctl -u pdf-filler -f` (on EC2)
-
----
-
-## License
-
-[Add your license here]
