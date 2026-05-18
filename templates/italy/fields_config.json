@@ -1,5 +1,5 @@
 {
-  "form_name": "Schengen Visa Application \u2014 Consulate General of Italy in Dubai",
+  "form_name": "Schengen Visa Application — Consulate General of Italy in Dubai",
   "pages": [
     {
       "page_number": 1,
@@ -56,8 +56,8 @@
     "date_of_birth": {
       "data_key": "date_of_birth",
       "page": 1,
-      "x": 85,
-      "y": 540,
+      "x": 78,
+      "y": 520,
       "width": 110,
       "height": 12,
       "font_size": 9,
@@ -66,8 +66,8 @@
     "place_of_birth": {
       "data_key": "place_of_birth",
       "page": 1,
-      "x": 215,
-      "y": 510,
+      "x": 247,
+      "y": 480,
       "width": 165,
       "height": 12,
       "font_size": 9,
@@ -76,8 +76,8 @@
     "country_of_birth": {
       "data_key": "country_of_birth",
       "page": 1,
-      "x": 215,
-      "y": 555,
+      "x": 191,
+      "y": 551,
       "width": 165,
       "height": 12,
       "font_size": 9,
@@ -86,7 +86,7 @@
     "current_nationality": {
       "data_key": "current_nationality",
       "page": 1,
-      "x": 395,
+      "x": 355,
       "y": 505,
       "width": 70,
       "height": 12,
@@ -96,8 +96,8 @@
     "nationality_at_birth": {
       "data_key": "nationality_at_birth",
       "page": 1,
-      "x": 395,
-      "y": 545,
+      "x": 355,
+      "y": 542,
       "width": 70,
       "height": 10,
       "font_size": 8,
@@ -106,8 +106,8 @@
     "other_nationalities": {
       "data_key": "other_nationalities",
       "page": 1,
-      "x": 395,
-      "y": 575,
+      "x": 355,
+      "y": 576,
       "width": 70,
       "height": 10,
       "font_size": 8,
@@ -177,7 +177,7 @@
       "width": 90,
       "height": 10,
       "font_size": 8,
-      "description": "Field 9: Civil status \u2014 Other (please specify) text"
+      "description": "Field 9: Civil status — Other (please specify) text"
     },
     "parental_authority": {
       "data_key": "parental_authority",
@@ -367,7 +367,7 @@
       "width": 260,
       "height": 10,
       "font_size": 8,
-      "description": "Field 18: Family relationship \u2014 other (specify) text"
+      "description": "Field 18: Family relationship — other (specify) text"
     },
     "home_address": {
       "data_key": "home_address",
@@ -511,7 +511,7 @@
       "width": 410,
       "height": 10,
       "font_size": 8,
-      "description": "Field 23: Purpose of journey \u2014 Other (please specify) text"
+      "description": "Field 23: Purpose of journey — Other (please specify) text"
     },
     "additional_purpose_info": {
       "data_key": "additional_purpose_info",
@@ -602,8 +602,8 @@
     "fingerprints_date": {
       "data_key": "fingerprints_date",
       "page": 3,
-      "x": 143,
-      "y": 173,
+      "x": 144,
+      "y": 172,
       "width": 130,
       "height": 10,
       "font_size": 8,
@@ -612,8 +612,8 @@
     "visa_sticker_number": {
       "data_key": "visa_sticker_number",
       "page": 3,
-      "x": 135,
-      "y": 181,
+      "x": 98,
+      "y": 183,
       "width": 105,
       "height": 10,
       "font_size": 8,
@@ -627,7 +627,7 @@
       "width": 115,
       "height": 10,
       "font_size": 8,
-      "description": "Field 30: Entry permit for final destination \u2014 issued by country"
+      "description": "Field 30: Entry permit for final destination — issued by country"
     },
     "entry_permit_valid_from": {
       "data_key": "entry_permit_valid_from",
@@ -697,13 +697,13 @@
       "width": 220,
       "height": 10,
       "font_size": 8,
-      "description": "Field 32: Contact person \u2014 surname, first name, address, telephone, email"
+      "description": "Field 32: Contact person — surname, first name, address, telephone, email"
     },
     "company_telephone": {
       "data_key": "company_telephone",
       "page": 3,
-      "x": 320,
-      "y": 425,
+      "x": 370,
+      "y": 417,
       "width": 165,
       "height": 10,
       "font_size": 8,
@@ -760,12 +760,12 @@
     "applicant_means_other_specify": {
       "data_key": "applicant_means_other_specify",
       "page": 3,
-      "x": 195,
-      "y": 645,
+      "x": 97,
+      "y": 665,
       "width": 90,
       "height": 10,
       "font_size": 6,
-      "description": "Field 33: Applicant means \u2014 Other (please specify) text"
+      "description": "Field 33: Applicant means — Other (please specify) text"
     },
     "sponsor_type": {
       "data_key": "sponsor_type",
@@ -786,12 +786,12 @@
     "sponsor_type_other_specify": {
       "data_key": "sponsor_type_other_specify",
       "page": 3,
-      "x": 380,
+      "x": 374,
       "y": 557,
       "width": 110,
       "height": 10,
       "font_size": 8,
-      "description": "Field 33: Sponsor type \u2014 other (please specify) text"
+      "description": "Field 33: Sponsor type — other (please specify) text"
     },
     "sponsor_means_of_support": {
       "data_key": "sponsor_means_of_support",
@@ -824,12 +824,12 @@
     "sponsor_means_other_specify": {
       "data_key": "sponsor_means_other_specify",
       "page": 3,
-      "x": 320,
-      "y": 670,
+      "x": 301,
+      "y": 665,
       "width": 110,
       "height": 10,
       "font_size": 8,
-      "description": "Field 33: Sponsor means \u2014 Other (please specify) text"
+      "description": "Field 33: Sponsor means — Other (please specify) text"
     },
     "filler_name": {
       "data_key": "filler_name",
@@ -854,8 +854,8 @@
     "filler_telephone": {
       "data_key": "filler_telephone",
       "page": 3,
-      "x": 320,
-      "y": 752,
+      "x": 326,
+      "y": 739,
       "width": 165,
       "height": 10,
       "font_size": 8,

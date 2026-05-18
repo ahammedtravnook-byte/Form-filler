@@ -76,8 +76,8 @@
     "country_of_birth": {
       "data_key": "country_of_birth",
       "page": 1,
-      "x": 252.9,
-      "y": 456,
+      "x": 248.9,
+      "y": 455,
       "width": 89.5,
       "height": 12,
       "font_size": 9,
@@ -86,9 +86,9 @@
     "current_nationality": {
       "data_key": "current_nationality",
       "page": 1,
-      "x": 348.3,
-      "y": 427,
-      "width": 86.0,
+      "x": 389.3,
+      "y": 412,
+      "width": 86,
       "height": 12,
       "font_size": 9,
       "description": "Field 7: Current nationality"
@@ -96,9 +96,9 @@
     "nationality_at_birth": {
       "data_key": "nationality_at_birth",
       "page": 1,
-      "x": 348.3,
-      "y": 449,
-      "width": 86.0,
+      "x": 389.3,
+      "y": 434,
+      "width": 86,
       "height": 12,
       "font_size": 9,
       "description": "Field 7: Nationality at birth, if different"
@@ -106,9 +106,9 @@
     "other_nationalities": {
       "data_key": "other_nationalities",
       "page": 1,
-      "x": 348.3,
-      "y": 459,
-      "width": 86.0,
+      "x": 347.3,
+      "y": 456,
+      "width": 86,
       "height": 12,
       "font_size": 9,
       "description": "Field 7: Other nationalities"
@@ -148,7 +148,7 @@
           "y": 483.7
         },
         "Registered Partnership": {
-          "x": 236.0,
+          "x": 236,
           "y": 483.7
         },
         "Separated": {
@@ -174,7 +174,7 @@
       "page": 1,
       "x": 302.4,
       "y": 495,
-      "width": 31.0,
+      "width": 31,
       "height": 10,
       "font_size": 8,
       "description": "Field 9: Civil status - Other (please specify) text"
@@ -182,9 +182,9 @@
     "parental_authority": {
       "data_key": "parental_authority",
       "page": 1,
-      "x": 86.3,
-      "y": 548,
-      "width": 348.0,
+      "x": 366.3,
+      "y": 534,
+      "width": 348,
       "height": 12,
       "font_size": 9,
       "description": "Field 10: Parental authority / legal guardian"
@@ -236,7 +236,7 @@
       "page": 2,
       "x": 225.2,
       "y": 131,
-      "width": 210.0,
+      "width": 210,
       "height": 10,
       "font_size": 8,
       "description": "Field 12: Other travel document (please specify) text"
@@ -254,7 +254,7 @@
     "travel_document_date_of_issue": {
       "data_key": "travel_document_date_of_issue",
       "page": 2,
-      "x": 160.3,
+      "x": 165.3,
       "y": 182,
       "width": 91.1,
       "height": 12,
@@ -264,7 +264,7 @@
     "travel_document_valid_until": {
       "data_key": "travel_document_valid_until",
       "page": 2,
-      "x": 252.2,
+      "x": 256.2,
       "y": 182,
       "width": 91.2,
       "height": 12,
@@ -274,7 +274,7 @@
     "travel_document_issued_by": {
       "data_key": "travel_document_issued_by",
       "page": 2,
-      "x": 344.1,
+      "x": 350.1,
       "y": 182,
       "width": 91.1,
       "height": 12,
@@ -294,8 +294,8 @@
     "eu_family_member_first_names": {
       "data_key": "eu_family_member_first_names",
       "page": 2,
-      "x": 371.8,
-      "y": 258,
+      "x": 271.5,
+      "y": 269,
       "width": 63.4,
       "height": 12,
       "font_size": 9,
@@ -343,15 +343,15 @@
         },
         "Child": {
           "x": 103.1,
-          "y": 360.0
+          "y": 360
         },
         "Grandchild": {
           "x": 132.5,
-          "y": 360.0
+          "y": 360
         },
         "Dependent ascendant": {
           "x": 183.5,
-          "y": 360.0
+          "y": 360
         },
         "Registered partnership": {
           "x": 68.4,
@@ -412,8 +412,8 @@
     "residence_permit_or_equivalent": {
       "data_key": "residence_permit_or_equivalent",
       "page": 2,
-      "x": 235.2,
-      "y": 464,
+      "x": 208.2,
+      "y": 455,
       "width": 42.3,
       "height": 10,
       "font_size": 8,
@@ -422,8 +422,8 @@
     "residence_permit_number": {
       "data_key": "residence_permit_number",
       "page": 2,
-      "x": 295.8,
-      "y": 464,
+      "x": 292.8,
+      "y": 455,
       "width": 44.2,
       "height": 10,
       "font_size": 8,
@@ -432,8 +432,8 @@
     "residence_permit_valid_until": {
       "data_key": "residence_permit_valid_until",
       "page": 2,
-      "x": 388.0,
-      "y": 464,
+      "x": 388,
+      "y": 459,
       "width": 34.6,
       "height": 10,
       "font_size": 8,
@@ -478,7 +478,7 @@
           "y": 590.7
         },
         "Cultural": {
-          "x": 254.0,
+          "x": 254,
           "y": 590.7
         },
         "Sports": {
@@ -520,7 +520,7 @@
     "additional_purpose_information": {
       "data_key": "additional_purpose_information",
       "page": 2,
-      "x": 68.4,
+      "x": 70.4,
       "y": 651,
       "width": 366.8,
       "height": 20,
@@ -530,9 +530,9 @@
     "main_destination_member_state": {
       "data_key": "main_destination_member_state",
       "page": 2,
-      "x": 68.4,
+      "x": 70.4,
       "y": 707,
-      "width": 183.0,
+      "width": 183,
       "height": 18,
       "font_size": 9,
       "description": "Field 25: Member State of main destination and other Member States of destination"
@@ -580,7 +580,7 @@
     "intended_departure_date": {
       "data_key": "intended_departure_date",
       "page": 3,
-      "x": 383.9,
+      "x": 381.9,
       "y": 82,
       "width": 51.3,
       "height": 12,
@@ -598,7 +598,7 @@
           "y": 120.8
         },
         "Yes": {
-          "x": 115.0,
+          "x": 115,
           "y": 120.8
         }
       }
@@ -606,8 +606,8 @@
     "fingerprints_date_if_known": {
       "data_key": "fingerprints_date_if_known",
       "page": 3,
-      "x": 129.4,
-      "y": 132,
+      "x": 125.4,
+      "y": 129,
       "width": 87.3,
       "height": 10,
       "font_size": 8,
@@ -616,8 +616,8 @@
     "visa_number_if_known": {
       "data_key": "visa_number_if_known",
       "page": 3,
-      "x": 338.7,
-      "y": 132,
+      "x": 336.7,
+      "y": 128,
       "width": 87.4,
       "height": 10,
       "font_size": 8,
@@ -627,7 +627,7 @@
       "data_key": "entry_permit_issued_by",
       "page": 3,
       "x": 111.3,
-      "y": 187,
+      "y": 183,
       "width": 81.1,
       "height": 10,
       "font_size": 8,
@@ -636,8 +636,8 @@
     "entry_permit_valid_from": {
       "data_key": "entry_permit_valid_from",
       "page": 3,
-      "x": 240.2,
-      "y": 187,
+      "x": 237.2,
+      "y": 183,
       "width": 81.7,
       "height": 10,
       "font_size": 8,
@@ -646,9 +646,9 @@
     "entry_permit_valid_until": {
       "data_key": "entry_permit_valid_until",
       "page": 3,
-      "x": 345.9,
-      "y": 187,
-      "width": 76.0,
+      "x": 346.9,
+      "y": 183,
+      "width": 76,
       "height": 10,
       "font_size": 8,
       "description": "Field 30: Entry permit valid until"
@@ -656,7 +656,7 @@
     "inviting_person_or_accommodation_name": {
       "data_key": "inviting_person_or_accommodation_name",
       "page": 3,
-      "x": 68.4,
+      "x": 72.4,
       "y": 239,
       "width": 366.8,
       "height": 18,
@@ -666,9 +666,9 @@
     "inviting_person_or_accommodation_address_email": {
       "data_key": "inviting_person_or_accommodation_address_email",
       "page": 3,
-      "x": 68.4,
+      "x": 72.4,
       "y": 288,
-      "width": 183.0,
+      "width": 183,
       "height": 18,
       "font_size": 9,
       "description": "Field 31: Address and email address of inviting person(s)/hotel(s)/temporary accommodation(s)"
@@ -676,8 +676,8 @@
     "inviting_person_or_accommodation_telephone": {
       "data_key": "inviting_person_or_accommodation_telephone",
       "page": 3,
-      "x": 257.3,
-      "y": 288,
+      "x": 321,
+      "y": 262,
       "width": 177.9,
       "height": 18,
       "font_size": 9,
@@ -698,7 +698,7 @@
       "page": 3,
       "x": 68.4,
       "y": 385,
-      "width": 183.0,
+      "width": 183,
       "height": 18,
       "font_size": 9,
       "description": "Field 32: Contact person in company/organisation details"
@@ -792,8 +792,8 @@
     "applicant_means_of_support_other_specify": {
       "data_key": "applicant_means_of_support_other_specify",
       "page": 3,
-      "x": 176.6,
-      "y": 521,
+      "x": 76.6,
+      "y": 534,
       "width": 74.8,
       "height": 10,
       "font_size": 8,
@@ -830,8 +830,8 @@
     "sponsor_means_of_support_other_specify": {
       "data_key": "sponsor_means_of_support_other_specify",
       "page": 3,
-      "x": 365.6,
-      "y": 553,
+      "x": 265.6,
+      "y": 565,
       "width": 69.6,
       "height": 10,
       "font_size": 8,
@@ -852,7 +852,7 @@
       "page": 3,
       "x": 68.4,
       "y": 677,
-      "width": 183.0,
+      "width": 183,
       "height": 18,
       "font_size": 9,
       "description": "Field 34: Address and email address of person filling in application form"

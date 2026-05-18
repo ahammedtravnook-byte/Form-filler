@@ -1,17 +1,33 @@
 {
   "form_name": "Harmonised Application Form for Schengen Visa",
   "pages": [
-    { "page_number": 1, "pdf_width": 595.32, "pdf_height": 841.92 },
-    { "page_number": 2, "pdf_width": 595.32, "pdf_height": 841.92 },
-    { "page_number": 3, "pdf_width": 595.32, "pdf_height": 841.92 },
-    { "page_number": 4, "pdf_width": 595.32, "pdf_height": 841.92 }
+    {
+      "page_number": 1,
+      "pdf_width": 595.32,
+      "pdf_height": 841.92
+    },
+    {
+      "page_number": 2,
+      "pdf_width": 595.32,
+      "pdf_height": 841.92
+    },
+    {
+      "page_number": 3,
+      "pdf_width": 595.32,
+      "pdf_height": 841.92
+    },
+    {
+      "page_number": 4,
+      "pdf_width": 595.32,
+      "pdf_height": 841.92
+    }
   ],
   "fields": {
     "surname_family_name": {
       "data_key": "surname_family_name",
       "page": 1,
       "x": 200,
-      "y": 350,
+      "y": 348,
       "width": 230,
       "height": 12,
       "font_size": 9,
@@ -21,7 +37,7 @@
       "data_key": "surname_at_birth",
       "page": 1,
       "x": 265,
-      "y": 368,
+      "y": 367,
       "width": 165,
       "height": 12,
       "font_size": 9,
@@ -31,7 +47,7 @@
       "data_key": "first_names",
       "page": 1,
       "x": 220,
-      "y": 386,
+      "y": 384,
       "width": 210,
       "height": 12,
       "font_size": 9,
@@ -60,8 +76,8 @@
     "country_of_birth": {
       "data_key": "country_of_birth",
       "page": 1,
-      "x": 250,
-      "y": 458,
+      "x": 248,
+      "y": 457,
       "width": 95,
       "height": 12,
       "font_size": 9,
@@ -70,8 +86,8 @@
     "current_nationality": {
       "data_key": "current_nationality",
       "page": 1,
-      "x": 386,
-      "y": 412,
+      "x": 387,
+      "y": 413,
       "width": 88,
       "height": 10,
       "font_size": 8,
@@ -81,7 +97,7 @@
       "data_key": "nationality_at_birth",
       "page": 1,
       "x": 386,
-      "y": 432,
+      "y": 434,
       "width": 88,
       "height": 10,
       "font_size": 8,
@@ -103,9 +119,18 @@
       "page": 1,
       "description": "8. Sex",
       "options": {
-        "Male": { "x": 67, "y": 484 },
-        "Female": { "x": 67, "y": 494 },
-        "Other": { "x": 67, "y": 506 }
+        "Male": {
+          "x": 67,
+          "y": 484
+        },
+        "Female": {
+          "x": 67,
+          "y": 494
+        },
+        "Other": {
+          "x": 67,
+          "y": 506
+        }
       }
     },
     "civil_status": {
@@ -114,20 +139,41 @@
       "page": 1,
       "description": "9. Civil status",
       "options": {
-        "Single": { "x": 164, "y": 484 },
-        "Married": { "x": 195, "y": 484 },
-        "Registered Partnership": { "x": 235, "y": 484 },
-        "Separated": { "x": 329, "y": 484 },
-        "Divorced": { "x": 377, "y": 484 },
-        "Widow(er)": { "x": 419, "y": 484 },
-        "Other": { "x": 206, "y": 495 }
+        "Single": {
+          "x": 164,
+          "y": 484
+        },
+        "Married": {
+          "x": 195,
+          "y": 484
+        },
+        "Registered Partnership": {
+          "x": 235,
+          "y": 484
+        },
+        "Separated": {
+          "x": 329,
+          "y": 484
+        },
+        "Divorced": {
+          "x": 377,
+          "y": 484
+        },
+        "Widow(er)": {
+          "x": 419,
+          "y": 484
+        },
+        "Other": {
+          "x": 206,
+          "y": 495
+        }
       }
     },
     "civil_status_other_specify": {
       "data_key": "civil_status_other_specify",
       "page": 1,
-      "x": 297,
-      "y": 495,
+      "x": 300,
+      "y": 496,
       "width": 130,
       "height": 10,
       "font_size": 8,
@@ -136,7 +182,7 @@
     "parental_authority": {
       "data_key": "parental_authority",
       "page": 1,
-      "x": 376,
+      "x": 365,
       "y": 535,
       "width": 345,
       "height": 14,
@@ -159,12 +205,30 @@
       "page": 2,
       "description": "12. Type of travel document",
       "options": {
-        "Ordinary passport": { "x": 68, "y": 110 },
-        "Diplomatic passport": { "x": 144, "y": 109 },
-        "Service passport": { "x": 228, "y": 109 },
-        "Official passport": { "x": 300, "y": 109 },
-        "Special passport": { "x": 371, "y": 109 },
-        "Other travel document": { "x": 68, "y": 131 }
+        "Ordinary passport": {
+          "x": 68,
+          "y": 110
+        },
+        "Diplomatic passport": {
+          "x": 144,
+          "y": 109
+        },
+        "Service passport": {
+          "x": 228,
+          "y": 109
+        },
+        "Official passport": {
+          "x": 300,
+          "y": 109
+        },
+        "Special passport": {
+          "x": 371,
+          "y": 109
+        },
+        "Other travel document": {
+          "x": 68,
+          "y": 131
+        }
       }
     },
     "other_travel_document_specify": {
@@ -220,7 +284,7 @@
     "family_member_surname": {
       "data_key": "family_member_surname",
       "page": 2,
-      "x": 68,
+      "x": 70,
       "y": 270,
       "width": 180,
       "height": 12,
@@ -240,7 +304,7 @@
     "family_member_date_of_birth": {
       "data_key": "family_member_date_of_birth",
       "page": 2,
-      "x": 68,
+      "x": 70,
       "y": 315,
       "width": 80,
       "height": 12,
@@ -273,12 +337,30 @@
       "page": 2,
       "description": "18. Family relationship with EU/EEA/CH/UK national",
       "options": {
-        "spouse": { "x": 68, "y": 360 },
-        "child": { "x": 103, "y": 360 },
-        "grandchild": { "x": 132, "y": 360 },
-        "dependent ascendant": { "x": 183, "y": 360 },
-        "registered partnership": { "x": 68, "y": 372 },
-        "other": { "x": 158, "y": 371 }
+        "spouse": {
+          "x": 68,
+          "y": 360
+        },
+        "child": {
+          "x": 103,
+          "y": 360
+        },
+        "grandchild": {
+          "x": 132,
+          "y": 360
+        },
+        "dependent ascendant": {
+          "x": 183,
+          "y": 360
+        },
+        "registered partnership": {
+          "x": 68,
+          "y": 372
+        },
+        "other": {
+          "x": 158,
+          "y": 371
+        }
       }
     },
     "family_relationship_other_specify": {
@@ -317,8 +399,14 @@
       "page": 2,
       "description": "20. Residence in a country other than current nationality",
       "options": {
-        "No": { "x": 68, "y": 451 },
-        "Yes": { "x": 68, "y": 463 }
+        "No": {
+          "x": 68,
+          "y": 451
+        },
+        "Yes": {
+          "x": 68,
+          "y": 463
+        }
       }
     },
     "residence_permit_number": {
@@ -367,16 +455,46 @@
       "page": 2,
       "description": "23. Purpose(s) of the journey",
       "options": {
-        "Tourism": { "x": 68, "y": 591 },
-        "Business": { "x": 108, "y": 591 },
-        "Visiting family or friends": { "x": 152, "y": 591 },
-        "Cultural": { "x": 254, "y": 591 },
-        "Sports": { "x": 294, "y": 591 },
-        "Official visit": { "x": 329, "y": 591 },
-        "Medical reasons": { "x": 384, "y": 591 },
-        "Study": { "x": 99, "y": 601 },
-        "Airport transit": { "x": 133, "y": 601 },
-        "Other": { "x": 200, "y": 601 }
+        "Tourism": {
+          "x": 68,
+          "y": 591
+        },
+        "Business": {
+          "x": 108,
+          "y": 591
+        },
+        "Visiting family or friends": {
+          "x": 152,
+          "y": 591
+        },
+        "Cultural": {
+          "x": 254,
+          "y": 591
+        },
+        "Sports": {
+          "x": 294,
+          "y": 591
+        },
+        "Official visit": {
+          "x": 329,
+          "y": 591
+        },
+        "Medical reasons": {
+          "x": 384,
+          "y": 591
+        },
+        "Study": {
+          "x": 99,
+          "y": 601
+        },
+        "Airport transit": {
+          "x": 133,
+          "y": 601
+        },
+        "Other": {
+          "x": 200,
+          "y": 601
+        }
       }
     },
     "purpose_other_specify": {
@@ -425,9 +543,18 @@
       "page": 2,
       "description": "27. Number of entries requested",
       "options": {
-        "Single entry": { "x": 68, "y": 740 },
-        "Two entries": { "x": 121, "y": 739 },
-        "Multiple entries": { "x": 176, "y": 739 }
+        "Single entry": {
+          "x": 68,
+          "y": 740
+        },
+        "Two entries": {
+          "x": 121,
+          "y": 739
+        },
+        "Multiple entries": {
+          "x": 176,
+          "y": 739
+        }
       }
     },
     "intended_date_of_arrival": {
@@ -456,8 +583,14 @@
       "page": 3,
       "description": "28. Fingerprints collected previously for Schengen visa",
       "options": {
-        "No": { "x": 93, "y": 107 },
-        "Yes": { "x": 116, "y": 107 }
+        "No": {
+          "x": 93,
+          "y": 107
+        },
+        "Yes": {
+          "x": 116,
+          "y": 107
+        }
       }
     },
     "fingerprints_date": {
@@ -576,10 +709,22 @@
       "page": 3,
       "description": "32. Cost of travelling and living covered by",
       "options": {
-        "by the applicant": { "x": 69, "y": 433 },
-        "by a sponsor": { "x": 257, "y": 433 },
-        "referred to in field 30 or 31": { "x": 257, "y": 458 },
-        "other": { "x": 257, "y": 472 }
+        "by the applicant": {
+          "x": 69,
+          "y": 433
+        },
+        "by a sponsor": {
+          "x": 257,
+          "y": 433
+        },
+        "referred to in field 30 or 31": {
+          "x": 257,
+          "y": 458
+        },
+        "other": {
+          "x": 257,
+          "y": 472
+        }
       }
     },
     "sponsor_other_specify": {
@@ -598,12 +743,30 @@
       "page": 3,
       "description": "32. Means of support — by the applicant",
       "options": {
-        "Cash": { "x": 69, "y": 453 },
-        "Traveller's cheques": { "x": 69, "y": 464 },
-        "Credit card": { "x": 69, "y": 475 },
-        "Pre-paid accommodation": { "x": 69, "y": 485 },
-        "Pre-paid transport": { "x": 69, "y": 496 },
-        "Other": { "x": 69, "y": 507 }
+        "Cash": {
+          "x": 69,
+          "y": 453
+        },
+        "Traveller's cheques": {
+          "x": 69,
+          "y": 464
+        },
+        "Credit card": {
+          "x": 69,
+          "y": 475
+        },
+        "Pre-paid accommodation": {
+          "x": 69,
+          "y": 485
+        },
+        "Pre-paid transport": {
+          "x": 69,
+          "y": 496
+        },
+        "Other": {
+          "x": 69,
+          "y": 507
+        }
       }
     },
     "applicant_means_other_specify": {
@@ -622,11 +785,26 @@
       "page": 3,
       "description": "32. Means of support — by sponsor",
       "options": {
-        "Cash": { "x": 257, "y": 495 },
-        "Accommodation provided": { "x": 257, "y": 505 },
-        "All expenses covered during the stay": { "x": 257, "y": 516 },
-        "Pre-paid transport": { "x": 257, "y": 527 },
-        "Other": { "x": 257, "y": 538 }
+        "Cash": {
+          "x": 257,
+          "y": 495
+        },
+        "Accommodation provided": {
+          "x": 257,
+          "y": 505
+        },
+        "All expenses covered during the stay": {
+          "x": 257,
+          "y": 516
+        },
+        "Pre-paid transport": {
+          "x": 257,
+          "y": 527
+        },
+        "Other": {
+          "x": 257,
+          "y": 538
+        }
       }
     },
     "sponsor_means_other_specify": {

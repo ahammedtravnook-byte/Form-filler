@@ -178,7 +178,7 @@
     "parental_authority": {
       "data_key": "parental_authority",
       "page": 1,
-      "x": 87.0,
+      "x": 87,
       "y": 572,
       "width": 341.9,
       "height": 18,
@@ -189,7 +189,7 @@
       "data_key": "national_identity_number",
       "page": 1,
       "x": 276.5,
-      "y": 595,
+      "y": 593,
       "width": 152.4,
       "height": 12,
       "font_size": 9,
@@ -202,7 +202,7 @@
       "description": "Field 12: Type of travel document",
       "options": {
         "Ordinary passport": {
-          "x": 87.0,
+          "x": 87,
           "y": 624
         },
         "Diplomatic passport": {
@@ -214,7 +214,7 @@
           "y": 624
         },
         "Official passport": {
-          "x": 87.0,
+          "x": 87,
           "y": 639
         },
         "Special passport": {
@@ -240,8 +240,8 @@
     "travel_document_number": {
       "data_key": "travel_document_number",
       "page": 1,
-      "x": 87.0,
-      "y": 733,
+      "x": 96,
+      "y": 729,
       "width": 86.2,
       "height": 12,
       "font_size": 9,
@@ -250,9 +250,9 @@
     "travel_document_date_of_issue": {
       "data_key": "travel_document_date_of_issue",
       "page": 1,
-      "x": 189.0,
+      "x": 189,
       "y": 724,
-      "width": 69.0,
+      "width": 69,
       "height": 12,
       "font_size": 9,
       "description": "Field 14: Date of issue"
@@ -260,8 +260,8 @@
     "travel_document_valid_until": {
       "data_key": "travel_document_valid_until",
       "page": 1,
-      "x": 282.4,
-      "y": 733,
+      "x": 279.4,
+      "y": 727,
       "width": 44.4,
       "height": 12,
       "font_size": 9,
@@ -270,8 +270,8 @@
     "travel_document_issued_by": {
       "data_key": "travel_document_issued_by",
       "page": 1,
-      "x": 350.8,
-      "y": 733,
+      "x": 348.8,
+      "y": 726,
       "width": 78.1,
       "height": 12,
       "font_size": 9,
@@ -280,7 +280,7 @@
     "eu_family_member_surname": {
       "data_key": "eu_family_member_surname",
       "page": 1,
-      "x": 173.6,
+      "x": 171.6,
       "y": 775,
       "width": 89.5,
       "height": 12,
@@ -290,8 +290,8 @@
     "eu_family_member_first_names": {
       "data_key": "eu_family_member_first_names",
       "page": 1,
-      "x": 399.5,
-      "y": 775,
+      "x": 394.5,
+      "y": 776,
       "width": 29.4,
       "height": 12,
       "font_size": 9,
@@ -300,8 +300,8 @@
     "eu_family_member_date_of_birth": {
       "data_key": "eu_family_member_date_of_birth",
       "page": 2,
-      "x": 64.3,
-      "y": 92,
+      "x": 120,
+      "y": 80,
       "width": 108.9,
       "height": 12,
       "font_size": 9,
@@ -310,8 +310,8 @@
     "eu_family_member_nationality": {
       "data_key": "eu_family_member_nationality",
       "page": 2,
-      "x": 232.0,
-      "y": 69,
+      "x": 228,
+      "y": 66,
       "width": 53.4,
       "height": 12,
       "font_size": 9,
@@ -320,7 +320,7 @@
     "eu_family_member_travel_document_or_id": {
       "data_key": "eu_family_member_travel_document_or_id",
       "page": 2,
-      "x": 327.8,
+      "x": 326.8,
       "y": 80,
       "width": 101.1,
       "height": 12,
@@ -334,7 +334,7 @@
       "description": "Field 18: Family relationship with an EU, EEA or CH citizen or UK Withdrawal Agreement beneficiary",
       "options": {
         "Spouse": {
-          "x": 87.0,
+          "x": 87,
           "y": 129
         },
         "Child": {
@@ -354,7 +354,7 @@
           "y": 129
         },
         "Other": {
-          "x": 87.0,
+          "x": 87,
           "y": 147
         }
       }
@@ -372,7 +372,7 @@
     "home_address_email": {
       "data_key": "home_address_email",
       "page": 2,
-      "x": 87.0,
+      "x": 87,
       "y": 176,
       "width": 198.4,
       "height": 40,
@@ -396,11 +396,11 @@
       "description": "Field 20: Residence in a country other than the country of current nationality",
       "options": {
         "No": {
-          "x": 87.0,
+          "x": 87,
           "y": 251
         },
         "Yes": {
-          "x": 87.0,
+          "x": 87,
           "y": 266
         }
       }
@@ -408,9 +408,9 @@
     "residence_permit_number": {
       "data_key": "residence_permit_number",
       "page": 2,
-      "x": 269.0,
-      "y": 266,
-      "width": 49.0,
+      "x": 265,
+      "y": 258,
+      "width": 49,
       "height": 10,
       "font_size": 8,
       "description": "Field 20: Residence permit number"
@@ -419,7 +419,7 @@
       "data_key": "residence_permit_valid_until",
       "page": 2,
       "x": 370.5,
-      "y": 266,
+      "y": 261,
       "width": 54.1,
       "height": 10,
       "font_size": 8,
@@ -438,7 +438,7 @@
     "employer_or_educational_establishment": {
       "data_key": "employer_or_educational_establishment",
       "page": 2,
-      "x": 87.0,
+      "x": 87,
       "y": 344,
       "width": 341.9,
       "height": 40,
@@ -452,7 +452,7 @@
       "description": "Field 23: Purpose(s) of the journey",
       "options": {
         "Tourism": {
-          "x": 87.0,
+          "x": 87,
           "y": 413
         },
         "Business": {
@@ -472,11 +472,11 @@
           "y": 413
         },
         "Official visit": {
-          "x": 87.0,
+          "x": 87,
           "y": 428
         },
         "Medical reasons": {
-          "x": 151.0,
+          "x": 151,
           "y": 428
         },
         "Study": {
@@ -506,7 +506,7 @@
     "additional_purpose_information": {
       "data_key": "additional_purpose_information",
       "page": 2,
-      "x": 87.0,
+      "x": 87,
       "y": 479,
       "width": 341.9,
       "height": 18,
@@ -516,8 +516,8 @@
     "main_destination_member_state": {
       "data_key": "main_destination_member_state",
       "page": 2,
-      "x": 87.0,
-      "y": 538,
+      "x": 137,
+      "y": 523,
       "width": 176.1,
       "height": 12,
       "font_size": 9,
@@ -540,7 +540,7 @@
       "description": "Field 27: Number of entries requested",
       "options": {
         "Single entry": {
-          "x": 87.0,
+          "x": 87,
           "y": 561
         },
         "Two entries": {
@@ -556,9 +556,9 @@
     "intended_arrival_date": {
       "data_key": "intended_arrival_date",
       "page": 2,
-      "x": 87.0,
-      "y": 599,
-      "width": 329.0,
+      "x": 87,
+      "y": 596,
+      "width": 329,
       "height": 10,
       "font_size": 8,
       "description": "Field 27: Intended date of arrival of first intended stay in Schengen area"
@@ -566,9 +566,9 @@
     "intended_departure_date": {
       "data_key": "intended_departure_date",
       "page": 2,
-      "x": 87.0,
-      "y": 632,
-      "width": 333.0,
+      "x": 87,
+      "y": 628,
+      "width": 333,
       "height": 10,
       "font_size": 8,
       "description": "Field 27: Intended date of departure from Schengen area after first intended stay"
@@ -580,7 +580,7 @@
       "description": "Field 28: Fingerprints collected previously for Schengen visa application",
       "options": {
         "No": {
-          "x": 87.0,
+          "x": 87,
           "y": 670
         },
         "Yes": {
@@ -592,8 +592,8 @@
     "fingerprints_date_if_known": {
       "data_key": "fingerprints_date_if_known",
       "page": 2,
-      "x": 153.3,
-      "y": 687,
+      "x": 148.3,
+      "y": 682,
       "width": 58.9,
       "height": 10,
       "font_size": 8,
@@ -602,8 +602,8 @@
     "visa_sticker_number_if_known": {
       "data_key": "visa_sticker_number_if_known",
       "page": 2,
-      "x": 345.0,
-      "y": 687,
+      "x": 340,
+      "y": 682,
       "width": 79.2,
       "height": 10,
       "font_size": 8,
@@ -612,9 +612,9 @@
     "entry_permit_issued_by": {
       "data_key": "entry_permit_issued_by",
       "page": 2,
-      "x": 131.6,
-      "y": 731,
-      "width": 84.0,
+      "x": 130.6,
+      "y": 728,
+      "width": 84,
       "height": 10,
       "font_size": 8,
       "description": "Field 29: Entry permit issued by"
@@ -622,8 +622,8 @@
     "entry_permit_valid_from": {
       "data_key": "entry_permit_valid_from",
       "page": 2,
-      "x": 267.6,
-      "y": 731,
+      "x": 262.6,
+      "y": 728,
       "width": 56.5,
       "height": 10,
       "font_size": 8,
@@ -632,8 +632,8 @@
     "entry_permit_valid_until": {
       "data_key": "entry_permit_valid_until",
       "page": 2,
-      "x": 351.7,
-      "y": 731,
+      "x": 363.7,
+      "y": 727,
       "width": 71.5,
       "height": 10,
       "font_size": 8,
@@ -662,8 +662,8 @@
     "inviting_person_or_accommodation_telephone": {
       "data_key": "inviting_person_or_accommodation_telephone",
       "page": 3,
-      "x": 303.5,
-      "y": 145,
+      "x": 307.5,
+      "y": 132,
       "width": 125.4,
       "height": 42,
       "font_size": 9,
@@ -672,7 +672,7 @@
     "inviting_company_name_address": {
       "data_key": "inviting_company_name_address",
       "page": 3,
-      "x": 87.0,
+      "x": 87,
       "y": 218,
       "width": 341.9,
       "height": 42,
@@ -736,8 +736,8 @@
     "costs_covered_by_sponsor_other_specify": {
       "data_key": "costs_covered_by_sponsor_other_specify",
       "page": 3,
-      "x": 377.3,
-      "y": 447,
+      "x": 374.3,
+      "y": 446,
       "width": 51.6,
       "height": 10,
       "font_size": 8,
@@ -778,8 +778,8 @@
     "applicant_means_of_support_other_specify": {
       "data_key": "applicant_means_of_support_other_specify",
       "page": 3,
-      "x": 176.2,
-      "y": 514,
+      "x": 76.2,
+      "y": 526,
       "width": 88.4,
       "height": 10,
       "font_size": 8,
@@ -818,7 +818,7 @@
       "page": 3,
       "x": 378.9,
       "y": 564,
-      "width": 50.0,
+      "width": 50,
       "height": 10,
       "font_size": 8,
       "description": "Field 32: Sponsor means of support - Other (please specify) text"
@@ -828,7 +828,7 @@
       "page": 4,
       "x": 133.1,
       "y": 422,
-      "width": 150.0,
+      "width": 150,
       "height": 12,
       "font_size": 9,
       "description": "Place and date"
