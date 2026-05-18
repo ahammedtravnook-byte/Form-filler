@@ -1,0 +1,881 @@
+{
+  "form_name": "Application for Schengen Visa",
+  "pages": [
+    {
+      "page_number": 1,
+      "pdf_width": 595.28,
+      "pdf_height": 841.89
+    },
+    {
+      "page_number": 2,
+      "pdf_width": 595.28,
+      "pdf_height": 841.89
+    },
+    {
+      "page_number": 3,
+      "pdf_width": 595.28,
+      "pdf_height": 841.89
+    },
+    {
+      "page_number": 4,
+      "pdf_width": 595.28,
+      "pdf_height": 841.89
+    }
+  ],
+  "fields": {
+    "surname": {
+      "data_key": "surname",
+      "page": 1,
+      "x": 134.6,
+      "y": 171,
+      "width": 327.6,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 1: Surname (Family name)"
+    },
+    "surname_at_birth": {
+      "data_key": "surname_at_birth",
+      "page": 1,
+      "x": 188.3,
+      "y": 199,
+      "width": 273.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 2: Surname at birth (Former family name(s))"
+    },
+    "first_names": {
+      "data_key": "first_names",
+      "page": 1,
+      "x": 153.3,
+      "y": 228,
+      "width": 308.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 3: First name(s) (Given name(s))"
+    },
+    "date_of_birth": {
+      "data_key": "date_of_birth",
+      "page": 1,
+      "x": 153.3,
+      "y": 256,
+      "width": 308.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 4: Date of birth (day-month-year)"
+    },
+    "place_of_birth": {
+      "data_key": "place_of_birth",
+      "page": 1,
+      "x": 100.4,
+      "y": 284,
+      "width": 361.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 5: Place of birth"
+    },
+    "country_of_birth": {
+      "data_key": "country_of_birth",
+      "page": 1,
+      "x": 107.4,
+      "y": 313,
+      "width": 354.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 6: Country of birth"
+    },
+    "current_nationality": {
+      "data_key": "current_nationality",
+      "page": 1,
+      "x": 116.3,
+      "y": 341,
+      "width": 345.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 7: Current nationality"
+    },
+    "nationality_at_birth": {
+      "data_key": "nationality_at_birth",
+      "page": 1,
+      "x": 148.4,
+      "y": 369,
+      "width": 313.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 7: Nationality at birth, if different"
+    },
+    "other_nationalities": {
+      "data_key": "other_nationalities",
+      "page": 1,
+      "x": 115.3,
+      "y": 397,
+      "width": 346.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 7: Other nationalities"
+    },
+    "sex": {
+      "data_key": "sex",
+      "type": "checkbox_group",
+      "page": 1,
+      "description": "Field 8: Sex",
+      "options": {
+        "Male": {
+          "x": 123.4,
+          "y": 424
+        },
+        "Female": {
+          "x": 243.5,
+          "y": 424
+        },
+        "Other": {
+          "x": 370.8,
+          "y": 424
+        }
+      }
+    },
+    "civil_status": {
+      "data_key": "civil_status",
+      "type": "checkbox_group",
+      "page": 1,
+      "description": "Field 9: Civil status",
+      "options": {
+        "Single": {
+          "x": 123.4,
+          "y": 437
+        },
+        "Married": {
+          "x": 123.4,
+          "y": 446
+        },
+        "Registered partnership": {
+          "x": 123.4,
+          "y": 455
+        },
+        "Separated": {
+          "x": 123.4,
+          "y": 464
+        },
+        "Divorced": {
+          "x": 243.6,
+          "y": 437
+        },
+        "Widow(er)": {
+          "x": 243.6,
+          "y": 446
+        },
+        "Other": {
+          "x": 243.6,
+          "y": 455
+        }
+      }
+    },
+    "civil_status_other_specify": {
+      "data_key": "civil_status_other_specify",
+      "page": 1,
+      "x": 327.6,
+      "y": 460,
+      "width": 134.6,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 9: Civil status - Other (please specify) text"
+    },
+    "parental_authority": {
+      "data_key": "parental_authority",
+      "page": 1,
+      "x": 44.8,
+      "y": 534,
+      "width": 417.4,
+      "height": 58,
+      "font_size": 9,
+      "description": "Field 10: Parental authority / legal guardian"
+    },
+    "national_identity_number": {
+      "data_key": "national_identity_number",
+      "page": 1,
+      "x": 194.4,
+      "y": 602,
+      "width": 267.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 11: National identity number, where applicable"
+    },
+    "travel_document_type": {
+      "data_key": "travel_document_type",
+      "type": "checkbox_group",
+      "page": 1,
+      "description": "Field 12: Type of travel document",
+      "options": {
+        "Ordinary passport": {
+          "x": 148.8,
+          "y": 631
+        },
+        "Diplomatic passport": {
+          "x": 148.8,
+          "y": 640
+        },
+        "Service passport": {
+          "x": 148.8,
+          "y": 649
+        },
+        "Official passport": {
+          "x": 148.8,
+          "y": 658
+        },
+        "Special passport": {
+          "x": 148.8,
+          "y": 667
+        },
+        "Other travel document": {
+          "x": 148.8,
+          "y": 676
+        }
+      }
+    },
+    "travel_document_type_other_specify": {
+      "data_key": "travel_document_type_other_specify",
+      "page": 1,
+      "x": 286.4,
+      "y": 680,
+      "width": 175.8,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 12: Other travel document (please specify) text"
+    },
+    "travel_document_number": {
+      "data_key": "travel_document_number",
+      "page": 1,
+      "x": 147.8,
+      "y": 717,
+      "width": 314.4,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 13: Number of travel document"
+    },
+    "travel_document_date_of_issue": {
+      "data_key": "travel_document_date_of_issue",
+      "page": 1,
+      "x": 104.3,
+      "y": 742,
+      "width": 357.9,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 14: Date of issue"
+    },
+    "travel_document_valid_until": {
+      "data_key": "travel_document_valid_until",
+      "page": 1,
+      "x": 93.2,
+      "y": 768,
+      "width": 369,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 15: Valid until"
+    },
+    "travel_document_issued_by": {
+      "data_key": "travel_document_issued_by",
+      "page": 1,
+      "x": 122.9,
+      "y": 793,
+      "width": 339.3,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 16: Issued by (country)"
+    },
+    "eu_family_member_surname": {
+      "data_key": "eu_family_member_surname",
+      "page": 2,
+      "x": 120.9,
+      "y": 42,
+      "width": 165.6,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 17: EU/EEA/CH/UK family member surname"
+    },
+    "eu_family_member_first_names": {
+      "data_key": "eu_family_member_first_names",
+      "page": 2,
+      "x": 406.3,
+      "y": 42,
+      "width": 142,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 17: EU/EEA/CH/UK family member first name(s)"
+    },
+    "eu_family_member_date_of_birth": {
+      "data_key": "eu_family_member_date_of_birth",
+      "page": 2,
+      "x": 139.5,
+      "y": 82,
+      "width": 147,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 17: EU/EEA/CH/UK family member date of birth"
+    },
+    "eu_family_member_nationality": {
+      "data_key": "eu_family_member_nationality",
+      "page": 2,
+      "x": 345.2,
+      "y": 82,
+      "width": 203.1,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 17: EU/EEA/CH/UK family member nationality"
+    },
+    "eu_family_member_travel_document_or_id": {
+      "data_key": "eu_family_member_travel_document_or_id",
+      "page": 2,
+      "x": 162.9,
+      "y": 121,
+      "width": 385.4,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 17: EU/EEA/CH/UK family member travel document or ID card number"
+    },
+    "family_relationship": {
+      "data_key": "family_relationship",
+      "type": "checkbox_group",
+      "page": 2,
+      "description": "Field 18: Family relationship with an EU, EEA or CH citizen or UK Withdrawal Agreement beneficiary",
+      "options": {
+        "Spouse": {
+          "x": 38.8,
+          "y": 179
+        },
+        "Child": {
+          "x": 38.8,
+          "y": 190
+        },
+        "Grandchild": {
+          "x": 38.8,
+          "y": 202
+        },
+        "Dependent ascendant": {
+          "x": 208.2,
+          "y": 179
+        },
+        "Registered partnership": {
+          "x": 208.2,
+          "y": 190
+        },
+        "Other": {
+          "x": 208.2,
+          "y": 202
+        }
+      }
+    },
+    "family_relationship_other_specify": {
+      "data_key": "family_relationship_other_specify",
+      "page": 2,
+      "x": 243,
+      "y": 206,
+      "width": 305.3,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 18: Family relationship - Other text"
+    },
+    "home_address_email": {
+      "data_key": "home_address_email",
+      "page": 2,
+      "x": 184.9,
+      "y": 232,
+      "width": 203.3,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 19: Applicant's home address and e-mail address"
+    },
+    "telephone_number": {
+      "data_key": "telephone_number",
+      "page": 2,
+      "x": 454.8,
+      "y": 232,
+      "width": 93.5,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 19: Telephone number"
+    },
+    "residence_other_country": {
+      "data_key": "residence_other_country",
+      "type": "checkbox_group",
+      "page": 2,
+      "description": "Field 20: Residence in a country other than country of current nationality",
+      "options": {
+        "No": {
+          "x": 38.8,
+          "y": 281
+        },
+        "Yes": {
+          "x": 38.8,
+          "y": 293
+        }
+      }
+    },
+    "residence_permit_or_equivalent": {
+      "data_key": "residence_permit_or_equivalent",
+      "page": 2,
+      "x": 165.9,
+      "y": 298,
+      "width": 132.3,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 20: Residence permit or equivalent"
+    },
+    "residence_permit_number": {
+      "data_key": "residence_permit_number",
+      "page": 2,
+      "x": 366.6,
+      "y": 298,
+      "width": 102,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 20: Residence permit number"
+    },
+    "residence_permit_valid_until": {
+      "data_key": "residence_permit_valid_until",
+      "page": 2,
+      "x": 85,
+      "y": 310,
+      "width": 112.8,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 20: Residence permit valid until"
+    },
+    "current_occupation": {
+      "data_key": "current_occupation",
+      "page": 2,
+      "x": 108,
+      "y": 334,
+      "width": 440.3,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 21: Current occupation"
+    },
+    "employer_or_educational_establishment": {
+      "data_key": "employer_or_educational_establishment",
+      "page": 2,
+      "x": 27.5,
+      "y": 371,
+      "width": 520.8,
+      "height": 54,
+      "font_size": 9,
+      "description": "Field 22: Employer and employer's address and telephone number; for students, educational establishment"
+    },
+    "journey_purposes": {
+      "data_key": "journey_purposes",
+      "type": "checkbox_group",
+      "page": 2,
+      "description": "Field 23: Purpose(s) of the journey",
+      "options": {
+        "Tourism": {
+          "x": 137,
+          "y": 435
+        },
+        "Business": {
+          "x": 137,
+          "y": 444
+        },
+        "Visiting family or friends": {
+          "x": 137,
+          "y": 453
+        },
+        "Cultural": {
+          "x": 137,
+          "y": 462
+        },
+        "Sports": {
+          "x": 137,
+          "y": 471
+        },
+        "Official visit": {
+          "x": 137,
+          "y": 480
+        },
+        "Medical reasons": {
+          "x": 137,
+          "y": 489
+        },
+        "Study": {
+          "x": 383.1,
+          "y": 435
+        },
+        "Airport transit": {
+          "x": 383.1,
+          "y": 444
+        },
+        "Other": {
+          "x": 383.1,
+          "y": 453
+        }
+      }
+    },
+    "journey_purposes_other_specify": {
+      "data_key": "journey_purposes_other_specify",
+      "page": 2,
+      "x": 469.5,
+      "y": 457,
+      "width": 78.8,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 23: Purpose(s) of the journey - Other (please specify) text"
+    },
+    "additional_purpose_information": {
+      "data_key": "additional_purpose_information",
+      "page": 2,
+      "x": 27.5,
+      "y": 533,
+      "width": 520.8,
+      "height": 34,
+      "font_size": 9,
+      "description": "Field 24: Additional information on purpose of stay"
+    },
+    "main_destination_member_state": {
+      "data_key": "main_destination_member_state",
+      "page": 2,
+      "x": 317.1,
+      "y": 577,
+      "width": 231.2,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 25: Member State of main destination and other Member States of destination"
+    },
+    "first_entry_member_state": {
+      "data_key": "first_entry_member_state",
+      "page": 2,
+      "x": 128.6,
+      "y": 600,
+      "width": 419.7,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 26: Member State of first entry"
+    },
+    "entries_requested": {
+      "data_key": "entries_requested",
+      "type": "checkbox_group",
+      "page": 2,
+      "description": "Field 27: Number of entries requested",
+      "options": {
+        "Single entry": {
+          "x": 38.8,
+          "y": 636
+        },
+        "Two entries": {
+          "x": 171.5,
+          "y": 636
+        },
+        "Multiple entries": {
+          "x": 279.5,
+          "y": 636
+        }
+      }
+    },
+    "intended_arrival_date": {
+      "data_key": "intended_arrival_date",
+      "page": 2,
+      "x": 38.8,
+      "y": 676,
+      "width": 247.7,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 27: Intended date of arrival of first intended stay in Schengen area"
+    },
+    "intended_departure_date": {
+      "data_key": "intended_departure_date",
+      "page": 2,
+      "x": 292.2,
+      "y": 676,
+      "width": 256.1,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 27: Intended date of departure from Schengen area after first intended stay"
+    },
+    "fingerprints_collected_previously": {
+      "data_key": "fingerprints_collected_previously",
+      "type": "checkbox_group",
+      "page": 2,
+      "description": "Field 28: Fingerprints collected previously for Schengen visa application",
+      "options": {
+        "No": {
+          "x": 38.8,
+          "y": 714
+        },
+        "Yes": {
+          "x": 38.8,
+          "y": 723
+        }
+      }
+    },
+    "fingerprints_date_if_known": {
+      "data_key": "fingerprints_date_if_known",
+      "page": 2,
+      "x": 164.3,
+      "y": 728,
+      "width": 90.7,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 28: Fingerprints date, if known"
+    },
+    "visa_sticker_number_if_known": {
+      "data_key": "visa_sticker_number_if_known",
+      "page": 2,
+      "x": 372.3,
+      "y": 728,
+      "width": 156.9,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 28: Visa sticker number, if known"
+    },
+    "entry_permit_issued_by": {
+      "data_key": "entry_permit_issued_by",
+      "page": 2,
+      "x": 73.8,
+      "y": 769,
+      "width": 212.5,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 29: Entry permit issued by"
+    },
+    "entry_permit_valid_from": {
+      "data_key": "entry_permit_valid_from",
+      "page": 2,
+      "x": 326.1,
+      "y": 769,
+      "width": 91.8,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 29: Entry permit valid from"
+    },
+    "entry_permit_valid_until": {
+      "data_key": "entry_permit_valid_until",
+      "page": 2,
+      "x": 439.7,
+      "y": 769,
+      "width": 89.9,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 29: Entry permit valid until"
+    },
+    "inviting_person_or_accommodation_name": {
+      "data_key": "inviting_person_or_accommodation_name",
+      "page": 3,
+      "x": 45.4,
+      "y": 45,
+      "width": 520.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 30: Surname and first name of inviting person(s) or name of hotel(s)/temporary accommodation(s)"
+    },
+    "inviting_person_or_accommodation_address_email": {
+      "data_key": "inviting_person_or_accommodation_address_email",
+      "page": 3,
+      "x": 59.5,
+      "y": 82,
+      "width": 336.2,
+      "height": 20,
+      "font_size": 9,
+      "description": "Field 30: Address and e-mail address of inviting person(s)/hotel(s)/temporary accommodation(s)"
+    },
+    "inviting_person_or_accommodation_telephone": {
+      "data_key": "inviting_person_or_accommodation_telephone",
+      "page": 3,
+      "x": 463.5,
+      "y": 68,
+      "width": 102.7,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 30: Telephone number"
+    },
+    "inviting_company_name_address": {
+      "data_key": "inviting_company_name_address",
+      "page": 3,
+      "x": 45.4,
+      "y": 126,
+      "width": 520.8,
+      "height": 18,
+      "font_size": 9,
+      "description": "Field 31: Name and address of inviting company/organisation"
+    },
+    "company_contact_person_details": {
+      "data_key": "company_contact_person_details",
+      "page": 3,
+      "x": 59.5,
+      "y": 170,
+      "width": 506.7,
+      "height": 34,
+      "font_size": 9,
+      "description": "Field 31: Contact person in company/organisation details"
+    },
+    "company_telephone_number": {
+      "data_key": "company_telephone_number",
+      "page": 3,
+      "x": 202.7,
+      "y": 215,
+      "width": 363.5,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 31: Telephone number of company/organisation"
+    },
+    "costs_covered_by": {
+      "data_key": "costs_covered_by",
+      "type": "checkbox_group",
+      "page": 3,
+      "description": "Field 32: Cost of travelling and living during stay is covered by",
+      "options": {
+        "Applicant himself/herself": {
+          "x": 45.4,
+          "y": 253
+        },
+        "Sponsor": {
+          "x": 263.8,
+          "y": 253
+        },
+        "Sponsor referred to in field 30 or 31": {
+          "x": 441.1,
+          "y": 285
+        },
+        "Sponsor other": {
+          "x": 441.1,
+          "y": 311
+        }
+      }
+    },
+    "costs_covered_by_sponsor_specify": {
+      "data_key": "costs_covered_by_sponsor_specify",
+      "page": 3,
+      "x": 263.8,
+      "y": 291,
+      "width": 177.4,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 32: Sponsor (host, company, organisation) specify text"
+    },
+    "costs_covered_by_sponsor_other_specify": {
+      "data_key": "costs_covered_by_sponsor_other_specify",
+      "page": 3,
+      "x": 265.7,
+      "y": 317,
+      "width": 175.5,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 32: Sponsor other (please specify) text"
+    },
+    "applicant_means_of_support": {
+      "data_key": "applicant_means_of_support",
+      "type": "checkbox_group",
+      "page": 3,
+      "description": "Field 32: Means of support by applicant",
+      "options": {
+        "Cash": {
+          "x": 45.4,
+          "y": 333
+        },
+        "Traveller's cheques": {
+          "x": 45.4,
+          "y": 355
+        },
+        "Credit card": {
+          "x": 45.4,
+          "y": 377
+        },
+        "Pre-paid accommodation": {
+          "x": 45.4,
+          "y": 399
+        },
+        "Pre-paid transport": {
+          "x": 45.4,
+          "y": 421
+        },
+        "Other": {
+          "x": 45.4,
+          "y": 443
+        }
+      }
+    },
+    "applicant_means_of_support_other_specify": {
+      "data_key": "applicant_means_of_support_other_specify",
+      "page": 3,
+      "x": 135,
+      "y": 449,
+      "width": 120,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 32: Applicant means of support - Other (please specify) text"
+    },
+    "sponsor_means_of_support": {
+      "data_key": "sponsor_means_of_support",
+      "type": "checkbox_group",
+      "page": 3,
+      "description": "Field 32: Means of support by sponsor",
+      "options": {
+        "Cash": {
+          "x": 263.8,
+          "y": 355
+        },
+        "Accommodation provided": {
+          "x": 263.8,
+          "y": 377
+        },
+        "All expenses covered during the stay": {
+          "x": 263.8,
+          "y": 399
+        },
+        "Pre-paid transport": {
+          "x": 263.8,
+          "y": 421
+        },
+        "Other": {
+          "x": 263.8,
+          "y": 443
+        }
+      }
+    },
+    "sponsor_means_of_support_other_specify": {
+      "data_key": "sponsor_means_of_support_other_specify",
+      "page": 3,
+      "x": 351.4,
+      "y": 449,
+      "width": 214.8,
+      "height": 10,
+      "font_size": 8,
+      "description": "Field 32: Sponsor means of support - Other (please specify) text"
+    },
+    "form_filler_name": {
+      "data_key": "form_filler_name",
+      "page": 3,
+      "x": 364.4,
+      "y": 494,
+      "width": 201.8,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 33: Surname and first name of person filling in application form"
+    },
+    "form_filler_address_email": {
+      "data_key": "form_filler_address_email",
+      "page": 3,
+      "x": 59.5,
+      "y": 533,
+      "width": 506.7,
+      "height": 18,
+      "font_size": 9,
+      "description": "Field 33: Address and email address of person filling in application form"
+    },
+    "form_filler_telephone": {
+      "data_key": "form_filler_telephone",
+      "page": 3,
+      "x": 109.7,
+      "y": 563,
+      "width": 456.5,
+      "height": 12,
+      "font_size": 9,
+      "description": "Field 33: Telephone number of person filling in application form"
+    },
+    "place_and_date": {
+      "data_key": "place_and_date",
+      "page": 4,
+      "x": 101.8,
+      "y": 221,
+      "width": 150,
+      "height": 12,
+      "font_size": 9,
+      "description": "Place and date"
+    }
+  }
+}
